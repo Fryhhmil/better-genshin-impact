@@ -294,7 +294,7 @@ public partial class PuloniaOneDragonViewModel : ViewModel, IDropTarget
             Session.InsertOneDragonTask(document, SelectedTask, result.Task);
             SelectedTask = document.SelectedNode;
         }
-        catch (Exception ex) { ThemedMessageBox.Error(I18nService.Instance.Translate("无法添加任务：") + ex.Message, I18nService.Instance.Translate("一条龙")); }
+        catch (Exception ex) { ThemedMessageBox.Error(I18nService.Instance.Translate("无法添加任务：") + ex.Message, I18nService.Instance.Translate("新一条龙")); }
     }
 
     /// <summary>
@@ -497,7 +497,7 @@ public partial class PuloniaOneDragonViewModel : ViewModel, IDropTarget
                 await _service.CancelAsync(runId);
             await RefreshExecutionStatusAsync();
         }
-        catch (Exception ex) { await ThemedMessageBox.ErrorAsync(I18nService.Instance.Translate("停止失败：") + ex.Message, I18nService.Instance.Translate("一条龙")); }
+        catch (Exception ex) { await ThemedMessageBox.ErrorAsync(I18nService.Instance.Translate("停止失败：") + ex.Message, I18nService.Instance.Translate("新一条龙")); }
     }
     /// <summary>拖拽仅允许当前根清单内的任务排序。</summary>
     public void DragOver(IDropInfo dropInfo)
