@@ -66,7 +66,8 @@ public static class DomainCascadingItems
                     .AsEnumerable()
                     .Reverse()
                     .Select(d => (ICascadingItem)new CascadingItem(
-                        d.Name! + " | " + FormatRewards(d.Rewards))
+                        // 展示文本按界面语言翻译；Tag 保持中文秘境名，作为保存值。
+                        I18nService.Instance.Translate(d.Name!) + " | " + FormatRewards(d.Rewards))
                     {
                         Tag = d.Name
                     })
@@ -77,12 +78,19 @@ public static class DomainCascadingItems
 
     private static string FormatRewards(IEnumerable<string> rewards)
     {
-        return string.Join(" ", rewards
+        // 中文沿用空格分隔；其他语言的奖励名含空格，改用翻译后的顿号（如英文“, ”）分隔。
+        var separator = I18nService.Instance.Translate("、");
+        if (separator == "、")
+        {
+            separator = " ";
+        }
+
+        return string.Join(separator, rewards
             .Select((reward, index) => TalentRewardDisplays.TryGetValue(reward, out var display)
                 ? (display.Order, Index: index, display.Text)
                 : (Order: int.MaxValue, Index: index, Text: reward))
             .OrderBy(reward => reward.Order)
             .ThenBy(reward => reward.Index)
-            .Select(reward => reward.Text));
+            .Select(reward => I18nService.Instance.Translate(reward.Text)));
     }
 }
