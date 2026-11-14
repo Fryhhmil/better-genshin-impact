@@ -63,7 +63,7 @@ BetterGI · Um Genshin Impact melhor: um projeto baseado em visão computacional
 * **Assistência de controle**
     * **[Giro do Neuvillette](https://www.bettergi.com/feats/macro/other.html#%E9%82%A3%E7%BB%B4%E8%8E%B1%E7%89%B9-%E8%BD%AC%E5%9C%88%E5%9C%88):** segure uma tecla para girar a câmera na horizontal (também funciona com a Nahida).
     * **[Aprimoramento rápido de artefatos](https://www.bettergi.com/feats/macro/other.html#%E5%9C%A3%E9%81%97%E7%89%A9%E4%B8%80%E9%94%AE%E5%BC%BA%E5%8C%96):** pula a animação alternando entre as abas "Detalhes" e "Aprimorar".
-    * **[Compra rápida na loja](https://www.bettergi.com/feats/macro/other.html#%E4%B8%80%E9%94%AE%E8%B4%AD%E4%B9%B0):** compra a quantidade máxima de itens de uma vez (lojas de eventos, Bule de Serenidade etc.).
+    * **[Compra rápida na loja](https://www.bettergi.com/feats/macro/other.html#%E4%B8%80%E9%94%AE%E8%B4%AD%E4%B9%B0):** compra a quantidade máxima de itens de uma vez (lojas de eventos, Bule de Relachá etc.).
 * **[...e muito mais](https://www.bettergi.com/doc.html)**
 
 <div align="center">
