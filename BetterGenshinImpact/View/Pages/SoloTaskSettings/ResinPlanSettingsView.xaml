@@ -23,9 +23,9 @@
                     </ui:CardControl.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <ui:Button Content="{i18n:T 设置}" MinWidth="72" Margin="0,0,12,0" Command="{Binding EditCommand, Mode=OneWay}"
-                                   AutomationProperties.Name="{Binding DisplayName, Mode=OneWay, StringFormat=设置{0}}"/>
+                                   AutomationProperties.Name="{Binding EditAutomationName, Mode=OneWay}"/>
                         <ui:ToggleSwitch IsChecked="{Binding Enabled, Mode=TwoWay}"
-                                         AutomationProperties.Name="{Binding DisplayName, Mode=OneWay, StringFormat={}{0}参与体力计划}"/>
+                                         AutomationProperties.Name="{Binding EnabledAutomationName, Mode=OneWay}"/>
                     </StackPanel>
                 </ui:CardControl>
             </DataTemplate>

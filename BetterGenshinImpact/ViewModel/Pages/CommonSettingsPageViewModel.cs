@@ -109,13 +109,15 @@ public partial class CommonSettingsPageViewModel : ViewModel
 
 
     private string _selectedCountry = string.Empty;
-    [ObservableProperty] private List<string> _adventurersGuildCountry = ["无", "枫丹", "稻妻", "璃月", "蒙德"];
+    // 冒险家协会国家名是保存值（OtherConfig.AutoFetchDispatchAdventurersGuildCountry），仅展示时翻译
+    [ObservableProperty] private List<string> _adventurersGuildCountry = [I18nService.Key("无"), I18nService.Key("枫丹"), I18nService.Key("稻妻"), I18nService.Key("璃月"), I18nService.Key("蒙德")];
     
     [ObservableProperty] private List<Tuple<TimeSpan, string>> _serverTimeZones =
     [
-        Tuple.Create(TimeSpan.FromHours(8), "其他 UTC+08"),
-        Tuple.Create(TimeSpan.FromHours(1), "欧服 UTC+01"),
-        Tuple.Create(TimeSpan.FromHours(-5), "美服 UTC-05")
+        // 只保存 Item1（时差），Item2 为显示名，界面通过 TBinding 翻译
+        Tuple.Create(TimeSpan.FromHours(8), I18nService.Key("其他 UTC+08")),
+        Tuple.Create(TimeSpan.FromHours(1), I18nService.Key("欧服 UTC+01")),
+        Tuple.Create(TimeSpan.FromHours(-5), I18nService.Key("美服 UTC-05"))
     ];
 
     public IReadOnlyDictionary<ItemIconRecognitionMode, string> ItemIconRecognitionModes { get; } =

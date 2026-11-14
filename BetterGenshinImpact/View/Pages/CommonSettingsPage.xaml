@@ -1992,7 +1992,14 @@
                               MinWidth="100"
                               Margin="0,0,36,0"
                               ItemsSource="{Binding AdventurersGuildCountry}"
-                              SelectedItem="{Binding Config.OtherConfig.AutoFetchDispatchAdventurersGuildCountry, Mode=TwoWay}" />
+                              SelectedItem="{Binding Config.OtherConfig.AutoFetchDispatchAdventurersGuildCountry, Mode=TwoWay}">
+                        <!--  国家名是保存值，仅展示时翻译  -->
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{i18n:TBinding}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                     <!--<ui:ToggleSwitch Grid.Row="0"
                                      Grid.RowSpan="2"
                                      Grid.Column="1"
@@ -2025,8 +2032,14 @@
                               Margin="0,0,36,0"
                               ItemsSource="{Binding ServerTimeZones}"
                               SelectedValue="{Binding Config.OtherConfig.ServerTimeZoneOffset}"
-                              SelectedValuePath="Item1"
-                              DisplayMemberPath="Item2" />
+                              SelectedValuePath="Item1">
+                        <!--  时区显示名仅展示时翻译，保存的是 Item1 时差  -->
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{i18n:TBinding Item2}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
                 <Grid Margin="16,0,16,12">
                     <Grid.RowDefinitions>
