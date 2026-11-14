@@ -41,7 +41,7 @@ internal static partial class I18nScanner
 
             foreach (var attribute in document.Descendants().Attributes())
             {
-                AddMatches(I18nKeyRegex().Matches(attribute.Value), keys, knownKeys);
+                AddMatches(I18nKeyRegex().Matches(attribute.Value), keys, knownKeys, normalizeXamlQuotes: true);
             }
         }
 
@@ -63,11 +63,17 @@ internal static partial class I18nScanner
         MatchCollection matches,
         ICollection<string> keys,
         ISet<string> knownKeys,
-        bool normalizeCSharpEscapes = false)
+        bool normalizeCSharpEscapes = false,
+        bool normalizeXamlQuotes = false)
     {
         foreach (Match match in matches)
         {
             var key = match.Groups["key"].Value.Trim();
+            if (normalizeXamlQuotes)
+            {
+                key = NormalizeXamlQuotedKey(key);
+            }
+
             if (normalizeCSharpEscapes)
             {
                 key = NormalizeCSharpEscapes(key);
@@ -78,6 +84,20 @@ internal static partial class I18nScanner
                 keys.Add(key);
             }
         }
+    }
+
+    /// <summary>
+    /// 与 WPF 标记扩展解析保持一致：{i18n:T '文本'} 运行时得到的 Key 不含外层引号，
+    /// 引号内的空白原样保留，反斜杠转义（如 \\、\'）会被还原。
+    /// </summary>
+    private static string NormalizeXamlQuotedKey(string key)
+    {
+        if (key.Length < 2 || key[0] != '\'' || key[^1] != '\'')
+        {
+            return key;
+        }
+
+        return Regex.Replace(key[1..^1], @"\\(.)", escapeMatch => escapeMatch.Groups[1].Value, RegexOptions.CultureInvariant);
     }
 
     private static string NormalizeCSharpEscapes(string key)
