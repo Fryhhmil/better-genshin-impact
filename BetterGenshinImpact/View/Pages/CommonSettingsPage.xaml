@@ -1680,10 +1680,10 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <ui:TextBlock Grid.Row="0" Grid.Column="0"
-                                  Text="是否就近七天神像恢复血量"
+                                  Text="{i18n:T 是否就近七天神像恢复血量}"
                                   FontTypography="Body" />
                     <ui:TextBlock Grid.Row="1" Grid.Column="0"
-                                  Text="启用后将自动选择最近的七天神像，忽略下方指定位置"
+                                  Text="{i18n:T 启用后将自动选择最近的七天神像，忽略下方指定位置}"
                                   Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" />
                     <ui:ToggleSwitch Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="0,0,36,0"
                                      IsChecked="{Binding Config.TpConfig.IsReviveInNearestStatueOfTheSeven}" />
@@ -1698,10 +1698,10 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <ui:TextBlock Grid.Row="0" Grid.Column="0"
-                                  Text="传送到七天神像之后是否需要移动后回血"
+                                  Text="{i18n:T 传送到七天神像之后是否需要移动后回血}"
                                   FontTypography="Body" />
                     <ui:TextBlock Grid.Row="1" Grid.Column="0"
-                                  Text="启用后将自动向七天神像方向移动"
+                                  Text="{i18n:T 启用后将自动向七天神像方向移动}"
                                   Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" />
                     <ui:ToggleSwitch Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="0,0,36,0"
                                      IsChecked="{Binding Config.TpConfig.ShouldMove}" />
@@ -1818,19 +1818,19 @@
                     <ui:TextBlock Grid.Row="0"
                                   Grid.Column="0"
                                   FontTypography="Body"
-                                  Text="手动导入本地脚本仓库（zip格式）"
+                                  Text="{i18n:T 手动导入本地脚本仓库（zip格式）}"
                                   TextWrapping="Wrap" />
                     <ui:TextBlock Grid.Row="1"
                                   Grid.Column="0"
                                   Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
-                                  Text="脚本仓库无法在线更新时使用"
+                                  Text="{i18n:T 脚本仓库无法在线更新时使用}"
                                   TextWrapping="Wrap" />
                     <ui:Button Grid.Row="0"
                                Grid.RowSpan="2"
                                Grid.Column="1"
                                Margin="0,0,36,0"
                                Command="{Binding ImportLocalScriptsRepoZipCommand}"
-                               Content="导入" />
+                               Content="{i18n:T 导入}" />
                 </Grid>
         
             </ui:CardControl.Header>

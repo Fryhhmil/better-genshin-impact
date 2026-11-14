@@ -55,7 +55,7 @@
                     Margin="24,8,24,0"
                     IsClosable="False"
                     IsOpen="True"
-                    Message="{Binding Document.LastSaveError, Mode=OneWay, StringFormat='修改仍保留在当前计划中，下次编辑后会自动重试保存。原因：{0}'}"
+                    Message="{Binding Document.LastSaveErrorMessage, Mode=OneWay}"
                     Severity="Error"
                     Title="{i18n:T 任务计划保存失败}">
             <ui:InfoBar.Style>
@@ -173,7 +173,7 @@
                         <StackPanel>
                             <ui:TextBlock FontTypography="Body" Text="{i18n:T 资源版本}" />
                             <ui:TextBlock Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                          Text="{Binding Node.ResourceVersionText, StringFormat=当前使用：{0}}"
+                                          Text="{Binding Node.CurrentResourceVersionText, Mode=OneWay}"
                                           TextTrimming="CharacterEllipsis" />
                         </StackPanel>
                     </ui:CardControl.Header>
@@ -309,7 +309,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Text="{Binding Name}"
                                                        TextTrimming="CharacterEllipsis"
-                                                       ToolTip="{Binding Source, StringFormat=来源：{0}}" />
+                                                       ToolTip="{Binding SourceText, Mode=OneWay}" />
                                             <TextBlock Grid.Column="1"
                                                        FontFamily="Consolas"
                                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"

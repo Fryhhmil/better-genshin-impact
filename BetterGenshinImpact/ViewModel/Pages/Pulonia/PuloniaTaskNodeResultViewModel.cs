@@ -206,10 +206,12 @@ public sealed class PuloniaTaskNodeResultViewModel : ObservableObject
             fields.Add(new PuloniaTaskHistoryField(PuloniaTaskResultInterpreter.GetResourcePathLabel(task.TaskType), task.Path));
         foreach (var parameter in task.Parameters.Properties())
         {
-            var source = task.ParameterSources.TryGetValue(parameter.Name, out var origin) ? string.Format(I18nService.Instance.Translate("（{0}）"), DescribeParameterSource(origin)) : "";
-            // 参数中文名与编辑器共用同一份映射，未知扩展键保持原文。
-            fields.Add(new PuloniaTaskHistoryField(PuloniaTaskFieldNames.GetDisplayName(parameter.Name) + source,
-                FormatValue(parameter.Value)));
+            // 参数中文名与编辑器共用同一份映射，未知扩展键保持原文；有来源时以“参数名（来源）”整句翻译。
+            var name = PuloniaTaskFieldNames.GetDisplayName(parameter.Name);
+            var label = task.ParameterSources.TryGetValue(parameter.Name, out var origin)
+                ? string.Format(I18nService.Instance.Translate("{0}（{1}）"), name, DescribeParameterSource(origin))
+                : name;
+            fields.Add(new PuloniaTaskHistoryField(label, FormatValue(parameter.Value)));
         }
         fields.Add(new PuloniaTaskHistoryField(I18nService.Instance.Translate("执行策略"), DescribePolicy(task.Policy)));
         return fields;

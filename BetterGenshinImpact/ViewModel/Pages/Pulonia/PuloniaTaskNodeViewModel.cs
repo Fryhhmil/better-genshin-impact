@@ -116,7 +116,7 @@ public partial class PuloniaTaskNodeViewModel : ObservableObject
 
     /// <summary>任务当前使用资源正文声明的版本号，仅用于界面展示。</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ResourceUpdateText), nameof(ResourceUpdateToolTip), nameof(ResourceVersionText))]
+    [NotifyPropertyChangedFor(nameof(ResourceUpdateText), nameof(ResourceUpdateToolTip), nameof(ResourceVersionText), nameof(CurrentResourceVersionText))]
     private string? _approvedDeclaredVersion;
 
     /// <summary>本机仓库当前资源正文声明的版本号，仅用于界面展示。</summary>
@@ -183,6 +183,11 @@ public partial class PuloniaTaskNodeViewModel : ObservableObject
     }
 
     /// <summary>
+    /// 带“当前使用”标签的资源版本摘要，供设置弹窗展示。
+    /// </summary>
+    public string CurrentResourceVersionText => string.Format(I18nService.Instance.Translate("当前使用：{0}"), ResourceVersionText);
+
+    /// <summary>
     /// 节点名称；失焦提交时作为一次可撤销编辑。
     /// </summary>
     public string Name
@@ -247,6 +252,7 @@ public partial class PuloniaTaskNodeViewModel : ObservableObject
     internal void NotifyResourceVersionChanged()
     {
         OnPropertyChanged(nameof(ResourceVersionText));
+        OnPropertyChanged(nameof(CurrentResourceVersionText));
         OnPropertyChanged(nameof(CanUpdateResourceVersion));
         OnPropertyChanged(nameof(HasResourceUpdate));
         OnPropertyChanged(nameof(HasResourceNotice));

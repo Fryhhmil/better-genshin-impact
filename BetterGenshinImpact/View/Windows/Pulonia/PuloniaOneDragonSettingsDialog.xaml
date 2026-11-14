@@ -47,7 +47,7 @@
      <ui:Button Content="{i18n:T 应用来源}" Command="{Binding Advanced.ApplySourceCommand, Mode=OneWay}" HorizontalAlignment="Right" Margin="0,8,0,12"/>
      <TextBlock Text="{i18n:T 有效参数与来源}" FontWeight="SemiBold"/>
      <ItemsControl ItemsSource="{Binding Advanced.EffectiveParameters, Mode=OneWay}"><ItemsControl.ItemTemplate><DataTemplate><StackPanel Margin="0,8,0,0">
-      <TextBlock Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/><TextBlock Text="{Binding Value, Mode=OneWay}" TextWrapping="Wrap"/><TextBlock Text="{Binding Source, Mode=OneWay, StringFormat=来源：{0}}" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+      <TextBlock Text="{Binding Name, Mode=OneWay}" FontWeight="SemiBold"/><TextBlock Text="{Binding Value, Mode=OneWay}" TextWrapping="Wrap"/><TextBlock Text="{Binding SourceText, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
      </StackPanel></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
     </StackPanel></Expander></ui:Card>
     <TextBlock Text="{Binding Advanced.Message, Mode=OneWay}" TextWrapping="Wrap" Foreground="{DynamicResource SystemFillColorCautionBrush}"/>

@@ -16,7 +16,7 @@
                     <TextBlock Style="{StaticResource SoloDescription}" Text="{i18n:T 前往所选地区领取每日委托奖励。}"/>
                 </StackPanel>
             </ui:CardControl.Header>
-            <ComboBox Width="180" ItemsSource="{x:Static tasksVm:ClaimDailyRewardsSettingsViewModel.CountryChoices}" SelectedItem="{Binding Country, Mode=TwoWay}"/>
+            <ComboBox Width="180" ItemsSource="{x:Static tasksVm:ClaimDailyRewardsSettingsViewModel.CountryChoices}" ItemTemplate="{StaticResource SoloTranslatedItem}" SelectedItem="{Binding Country, Mode=TwoWay}"/>
         </ui:CardControl>
         <ui:CardControl Style="{StaticResource SoloCard}">
             <ui:CardControl.Header>

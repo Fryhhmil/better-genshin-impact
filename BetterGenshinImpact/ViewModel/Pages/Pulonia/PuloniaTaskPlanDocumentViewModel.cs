@@ -136,7 +136,15 @@ public partial class PuloniaTaskPlanDocumentViewModel : ObservableObject
     /// 最近一次保存失败信息；成功保存后清空。
     /// </summary>
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(LastSaveErrorMessage))]
     private string? _lastSaveError;
+
+    /// <summary>
+    /// 保存失败提示正文：说明修改仍保留并附上失败原因；未失败时为空。
+    /// </summary>
+    public string? LastSaveErrorMessage => LastSaveError is null
+        ? null
+        : string.Format(I18nService.Instance.Translate("修改仍保留在当前计划中，下次编辑后会自动重试保存。原因：{0}"), LastSaveError);
 
     /// <summary>
     /// 计划的内部根节点；界面只展示其子节点，空白区域命令以该节点为插入目标。

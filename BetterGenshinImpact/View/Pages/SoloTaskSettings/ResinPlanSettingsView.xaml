@@ -90,7 +90,7 @@
                     <TextBlock Style="{StaticResource SoloDescription}" Text="{i18n:T 前往所选地区的合成台合成浓缩树脂。}"/>
                 </StackPanel>
                 <ComboBox Grid.Column="1" Width="180" VerticalAlignment="Center"
-                          ItemsSource="{x:Static tasksVm:ResinPlanSettingsViewModel.CountryChoices}" SelectedItem="{Binding CraftCountry, Mode=TwoWay}"
+                          ItemsSource="{x:Static tasksVm:ResinPlanSettingsViewModel.CountryChoices}" ItemTemplate="{StaticResource SoloTranslatedItem}" SelectedItem="{Binding CraftCountry, Mode=TwoWay}"
                           AutomationProperties.Name="{i18n:T 合成台所在地区}"/>
             </Grid>
         </ui:CardExpander>

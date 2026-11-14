@@ -101,7 +101,7 @@ public partial class CommonSettingsPageViewModel : ViewModel
     /// 设置页“存储空间”卡片的说明文字。
     /// </summary>
     [ObservableProperty]
-    private string _storageSummaryText = "正在计算占用…";
+    private string _storageSummaryText = I18nService.Instance.Translate("正在计算占用…");
 
     private readonly TpConfig _tpConfig;
 
@@ -192,7 +192,7 @@ public partial class CommonSettingsPageViewModel : ViewModel
             var token = Config.ExternalAccessConfig.AccessToken;
             if (string.IsNullOrEmpty(token))
             {
-                return "尚未生成";
+                return I18nService.Instance.Translate("尚未生成");
             }
 
             return token.Length <= 8
@@ -246,7 +246,7 @@ public partial class CommonSettingsPageViewModel : ViewModel
         //            Owner = this,
         WebpageWindow cookieWin = new()
         {
-            Title = "日志分析",
+            Title = I18nService.Instance.Translate("日志分析"),
             Width = 800,
             Height = 600,
 
@@ -265,12 +265,12 @@ public partial class CommonSettingsPageViewModel : ViewModel
         var token = Config.ExternalAccessConfig.AccessToken;
         if (string.IsNullOrEmpty(token))
         {
-            ThemedMessageBox.Warning("访问令牌尚未生成。请先启用 HTTP API 或 MCP 后重启，或者点击“重新生成”。");
+            ThemedMessageBox.Warning(I18nService.Instance.Translate("访问令牌尚未生成。请先启用 HTTP API 或 MCP 后重启，或者点击“重新生成”。"));
             return;
         }
 
         Clipboard.SetDataObject(token);
-        ThemedMessageBox.Information("访问令牌已复制到剪贴板。");
+        ThemedMessageBox.Information(I18nService.Instance.Translate("访问令牌已复制到剪贴板。"));
     }
 
     /// <summary>
@@ -281,7 +281,7 @@ public partial class CommonSettingsPageViewModel : ViewModel
     {
         _externalAccessTokenService.RegenerateToken();
         OnPropertyChanged(nameof(MaskedExternalAccessToken));
-        ThemedMessageBox.Information("访问令牌已重新生成，旧令牌立即失效。");
+        ThemedMessageBox.Information(I18nService.Instance.Translate("访问令牌已重新生成，旧令牌立即失效。"));
     }
 
     private void InitializeMiyousheCookie()
@@ -509,12 +509,12 @@ public partial class CommonSettingsPageViewModel : ViewModel
         {
             var areas = _storageService.GetAreas().Where(area => StorageSummaryGroups.Contains(area.Group)).ToList();
             var sizes = await Task.WhenAll(areas.Select(area => _storageService.MeasureAsync(area, CancellationToken.None)));
-            StorageSummaryText = $"缓存、下载、网页数据和临时文件共占用 {ByteSizeFormatter.Format(sizes.Sum())}";
+            StorageSummaryText = string.Format(I18nService.Instance.Translate("缓存、下载、网页数据和临时文件共占用 {0}"), ByteSizeFormatter.Format(sizes.Sum()));
             _storageSummaryUpdatedAt = DateTime.UtcNow;
         }
         catch (Exception)
         {
-            StorageSummaryText = "查看和清理缓存、下载、网页数据与临时文件";
+            StorageSummaryText = I18nService.Instance.Translate("查看和清理缓存、下载、网页数据与临时文件");
         }
         finally
         {
@@ -541,7 +541,7 @@ public partial class CommonSettingsPageViewModel : ViewModel
 
         var dialog = new OpenFileDialog
         {
-            Title = "选择脚本仓库压缩包",
+            Title = I18nService.Instance.Translate("选择脚本仓库压缩包"),
             Filter = "Zip Files (*.zip)|*.zip",
             Multiselect = false
         };
@@ -551,11 +551,11 @@ public partial class CommonSettingsPageViewModel : ViewModel
             try
             {
                 await ScriptRepoUpdater.Instance.ImportLocalRepoZip(dialog.FileName);
-                ThemedMessageBox.Information("脚本仓库离线包导入成功！");
+                ThemedMessageBox.Information(I18nService.Instance.Translate("脚本仓库离线包导入成功！"));
             }
             catch (Exception ex)
             {
-                ThemedMessageBox.Error($"脚本仓库离线包导入失败：{ex.Message}");
+                ThemedMessageBox.Error(string.Format(I18nService.Instance.Translate("脚本仓库离线包导入失败：{0}"), ex.Message));
             }
         }
     }
@@ -590,7 +590,7 @@ public partial class CommonSettingsPageViewModel : ViewModel
     [RelayCommand]
     private async Task CheckUpdateAlphaAsync()
     {
-        var result = await ThemedMessageBox.ShowAsync("测试版本非常不稳定！\n测试版本非常不稳定！\n测试版本非常不稳定！\n\n是否继续检查更新？", "警告", MessageBoxButton.YesNo, ThemedMessageBox.MessageBoxIcon.Warning);
+        var result = await ThemedMessageBox.ShowAsync(I18nService.Instance.Translate("测试版本非常不稳定！\n测试版本非常不稳定！\n测试版本非常不稳定！\n\n是否继续检查更新？"), I18nService.Instance.Translate("警告"), MessageBoxButton.YesNo, ThemedMessageBox.MessageBoxIcon.Warning);
         if (result != MessageBoxResult.Yes)
         {
             return;
@@ -630,8 +630,8 @@ public partial class CommonSettingsPageViewModel : ViewModel
     {
         var dialog = new OpenFileDialog
         {
-            Filter = "图片文件|*.png;*.jpg;*.jpeg;*.bmp;*.gif",
-            Title = "选择准星图片"
+            Filter = I18nService.Instance.Translate("图片文件") + "|*.png;*.jpg;*.jpeg;*.bmp;*.gif",
+            Title = I18nService.Instance.Translate("选择准星图片")
         };
         if (dialog.ShowDialog() == true)
         {
@@ -645,8 +645,8 @@ public partial class CommonSettingsPageViewModel : ViewModel
         var dialog = new OpenFileDialog
         {
             // 注意：不声明 *.webp —— WPF BitmapImage 原生不支持 WebP 解码，声明了会导致用户选中后加载失败
-            Filter = "图片文件|*.png;*.jpg;*.jpeg;*.bmp;*.gif",
-            Title = "选择主窗口背景图片"
+            Filter = I18nService.Instance.Translate("图片文件") + "|*.png;*.jpg;*.jpeg;*.bmp;*.gif",
+            Title = I18nService.Instance.Translate("选择主窗口背景图片")
         };
         if (dialog.ShowDialog() == true)
         {

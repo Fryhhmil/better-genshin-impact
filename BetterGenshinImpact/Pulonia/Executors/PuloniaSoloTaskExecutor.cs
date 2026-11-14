@@ -9,6 +9,7 @@ using BetterGenshinImpact.GameTask.SoloTask;
 using BetterGenshinImpact.GameTask.AutoBoss;
 using BetterGenshinImpact.Pulonia.Models;
 using BetterGenshinImpact.Pulonia.Services;
+using BetterGenshinImpact.Service.I18n;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -194,6 +195,11 @@ public sealed class PuloniaSoloTaskExecutor : IPuloniaTaskExecutor
     }
 
     /// <summary>
+    /// 描述符未提供说明时使用的默认说明格式（中文原文，{0} 为任务名）；界面展示时再按当前语言翻译。
+    /// </summary>
+    internal static readonly string FallbackDescriptionFormat = I18nService.Key("执行独立任务“{0}”。");
+
+    /// <summary>
     /// 由独立任务描述符建立能力定义：默认参数来自参数类的无参构造，Schema 按参数 JSON 合同生成。
     /// </summary>
     /// <param name="descriptor">独立任务描述符。</param>
@@ -221,7 +227,7 @@ public sealed class PuloniaSoloTaskExecutor : IPuloniaTaskExecutor
             TaskType = ToTaskType(descriptor.TaskId),
             DisplayName = descriptor.DisplayName,
             Description = string.IsNullOrWhiteSpace(descriptor.Description)
-                ? $"执行独立任务“{descriptor.DisplayName}”。"
+                ? string.Format(FallbackDescriptionFormat, descriptor.DisplayName)
                 : descriptor.Description,
             RequiresGameSession = true,
             DefaultParameters = defaults,
