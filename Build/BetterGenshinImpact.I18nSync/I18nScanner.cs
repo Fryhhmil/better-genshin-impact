@@ -16,6 +16,12 @@ internal static partial class I18nScanner
     [GeneratedRegex(@"new\s+(?:HotKeySettingModel|StatusItem)\(\s*""(?<key>[^""]+)""", RegexOptions.CultureInvariant)]
     private static partial Regex CodeModelKeyRegex();
 
+    /// <summary>
+    /// 匹配 I18nService.Key("...") 标记的数据值 Key，界面通过 {i18n:TBinding} 翻译展示。
+    /// </summary>
+    [GeneratedRegex(@"I18nService\.Key\(\s*""(?<key>[^""]+)""\s*\)", RegexOptions.CultureInvariant)]
+    private static partial Regex CodeDataKeyRegex();
+
     public static I18nScanResult Scan(string projectDirectory)
     {
         var keys = new List<string>();
@@ -54,6 +60,7 @@ internal static partial class I18nScanner
             var source = RemoveComments(File.ReadAllText(filePath));
             AddMatches(CodeTranslationKeyRegex().Matches(source), keys, knownKeys, normalizeCSharpEscapes: true);
             AddMatches(CodeModelKeyRegex().Matches(source), keys, knownKeys, normalizeCSharpEscapes: true);
+            AddMatches(CodeDataKeyRegex().Matches(source), keys, knownKeys, normalizeCSharpEscapes: true);
         }
 
         return new I18nScanResult(keys, xamlFileCount, codeFileCount);

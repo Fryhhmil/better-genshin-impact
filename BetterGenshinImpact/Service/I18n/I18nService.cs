@@ -63,6 +63,12 @@ public sealed class I18nService : INotifyPropertyChanged
         OnPropertyChanged(nameof(Revision));
     }
 
+    /// <summary>
+    /// 标记数据值（如保存在配置中、参与逻辑比较的中文选项）为 i18n Key，原样返回，不做翻译。
+    /// 同步工具会扫描 <c>I18nService.Key("...")</c> 收集 Key；界面展示时再通过 <see cref="TBindingExtension"/> 翻译。
+    /// </summary>
+    public static string Key(string key) => key;
+
     public string Translate(string key)
     {
         if (_useTraditionalChinese)

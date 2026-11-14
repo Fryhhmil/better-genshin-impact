@@ -307,9 +307,14 @@
                           MinWidth="200"
                           Height="34"
                           Margin="10,0,10,0"
-                          DisplayMemberPath="Name"
                           ItemsSource="{Binding ConfigList}"
                           SelectedItem="{Binding SelectedConfig, Mode=TwoWay}">
+                    <!--  配置名是用户数据，只翻译内置的“默认配置”等已登记名称  -->
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{i18n:TBinding Name}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
                     <b:Interaction.Triggers>
                         <b:EventTrigger EventName="SelectionChanged">
                             <b:InvokeCommandAction Command="{Binding ConfigDropDownChangedCommand}"
@@ -382,7 +387,13 @@
                                           HorizontalContentAlignment="Center"
                                           HorizontalAlignment="Left"
                                           SelectedItem="{Binding SelectedConfig.CraftingBenchCountry, Mode=TwoWay}"
-                                          ItemsSource="{Binding CraftingBenchCountry}" />
+                                          ItemsSource="{Binding CraftingBenchCountry}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 
                                 <ui:TextBlock Grid.Row="0"
                                               Grid.Column="2"
@@ -1978,7 +1989,13 @@
                         <ComboBox MinWidth="100"
                                   Margin="0,0,28,0"
                                   SelectedItem="{Binding SelectedConfig.AdventurersGuildCountry, Mode=TwoWay}"
-                                  ItemsSource="{Binding AdventurersGuildCountry}" />
+                                  ItemsSource="{Binding AdventurersGuildCountry}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{i18n:TBinding}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </ui:CardControl>
                     <ui:CardControl Margin="0,0,0,12">
                         <ui:CardControl.Icon>
@@ -2049,7 +2066,13 @@
                             <ComboBox MinWidth="90"
                                       Margin="0,0,10,0"
                                       SelectedItem="{Binding SelectedConfig.SereniteaPotTpType, Mode=TwoWay}"
-                                      ItemsSource="{Binding SereniteaPotTpTypes}" />
+                                      ItemsSource="{Binding SereniteaPotTpTypes}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{i18n:TBinding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                             <ToggleButton                                         
                                 Margin="0,0,28,0"
                                 VerticalAlignment="Center"
@@ -2346,7 +2369,13 @@
                         <ComboBox MinWidth="150"
                                   Margin="0,0,28,0"
                                   SelectedItem="{Binding SelectedConfig.CompletionAction, Mode=TwoWay}"
-                                  ItemsSource="{Binding CompletionActionList}" />
+                                  ItemsSource="{Binding CompletionActionList}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{i18n:TBinding}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </ui:CardControl>
 
                     <!--  可以继续添加其他设置项  -->

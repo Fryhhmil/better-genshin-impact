@@ -9,7 +9,7 @@ public partial class ResinKindRowViewModel : ObservableObject
     /// <summary>本行对应的树脂。</summary>
     public ResinKind Kind { get; }
     /// <summary>树脂全称。</summary>
-    public string DisplayName => ResinUsageText.DisplayName(Kind);
+    public string DisplayName => ResinUsageText.LocalizedDisplayName(Kind);
     /// <summary>本次是否允许使用。</summary>
     [ObservableProperty] private bool _isAllowed;
     /// <summary>按树脂分别指定的领奖次数。</summary>

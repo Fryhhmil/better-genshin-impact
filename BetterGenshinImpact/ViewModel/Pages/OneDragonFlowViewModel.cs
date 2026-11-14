@@ -1,3 +1,4 @@
+using BetterGenshinImpact.Service.I18n;
 using System;
 using System.Collections.Generic;
 using BetterGenshinImpact.Model;
@@ -214,13 +215,13 @@ public partial class OneDragonFlowViewModel : ViewModel
     /// </summary>
     [ObservableProperty] private OneDragonFlowConfig? _selectedConfig;
 
-    [ObservableProperty] private List<string> _craftingBenchCountry = ["枫丹", "稻妻", "璃月", "蒙德"];
+    [ObservableProperty] private List<string> _craftingBenchCountry = [I18nService.Key("枫丹"), I18nService.Key("稻妻"), I18nService.Key("璃月"), I18nService.Key("蒙德")];
 
-    [ObservableProperty] private List<string> _adventurersGuildCountry = ["挪德卡莱", "枫丹", "稻妻", "璃月", "蒙德"];
+    [ObservableProperty] private List<string> _adventurersGuildCountry = [I18nService.Key("挪德卡莱"), I18nService.Key("枫丹"), I18nService.Key("稻妻"), I18nService.Key("璃月"), I18nService.Key("蒙德")];
 
     [ObservableProperty] private List<string> _domainNameList = ["", ..MapLazyAssets.Get().DomainNameList];
 
-    [ObservableProperty] private List<string> _completionActionList = ["无", "关闭游戏", "关闭软件", "关闭游戏和软件", "关机"];
+    [ObservableProperty] private List<string> _completionActionList = [I18nService.Key("无"), I18nService.Key("关闭游戏"), I18nService.Key("关闭软件"), I18nService.Key("关闭游戏和软件"), I18nService.Key("关机")];
 
     [ObservableProperty] private List<string> _sundayEverySelectedValueList = ["","1", "2", "3"];
     
@@ -228,7 +229,7 @@ public partial class OneDragonFlowViewModel : ViewModel
 
     [ObservableProperty] private List<string> _secretTreasureObjectList = ["布匹","须臾树脂","大英雄的经验","流浪者的经验","精锻用魔矿","摩拉","祝圣精华","祝圣油膏"];
     
-    [ObservableProperty] private List<string> _sereniteaPotTpTypes = ["地图传送", "尘歌壶道具"];
+    [ObservableProperty] private List<string> _sereniteaPotTpTypes = [I18nService.Key("地图传送"), I18nService.Key("尘歌壶道具")];
 
     [ObservableProperty] private AutoFightViewModel? _autoFightViewModel;
     
@@ -339,7 +340,7 @@ public partial class OneDragonFlowViewModel : ViewModel
             {
                 selected = new OneDragonFlowConfig
                 {
-                    Name = "默认配置"
+                    Name = I18nService.Key("默认配置")
                 };
                 configs.Add(selected);
             }
@@ -875,7 +876,7 @@ public partial class OneDragonFlowViewModel : ViewModel
             {
                 var defaultConfig = new OneDragonFlowConfig
                 {
-                    Name = "默认配置"
+                    Name = I18nService.Key("默认配置")
                 };
                 ConfigList.Add(defaultConfig);
                 SelectedConfig = defaultConfig;
