@@ -174,7 +174,7 @@
                                 <TextBlock Margin="0,2,0,0"
                                            FontSize="12"
                                            Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                           Text="{Binding InstancesText, Mode=OneWay, StringFormat=是{0}的当前账户}"
+                                           Text="{Binding InstancesListText, Mode=OneWay}"
                                            TextTrimming="CharacterEllipsis"
                                            ToolTip="{Binding InstancesText, Mode=OneWay}"
                                            Visibility="{Binding HasInstances, Mode=OneWay, Converter={StaticResource AccountsBoolVisibility}}" />

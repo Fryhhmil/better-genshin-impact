@@ -1854,12 +1854,24 @@
                                           Grid.Column="2"
                                           Margin="0,0,12,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropTypeListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineMondayType, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineMondayType, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <ComboBox Grid.Row="3"
                                           Grid.Column="3"
                                           Margin="0,0,0,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropCountryListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineMondayCountry, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineMondayCountry, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
 
                                 <CheckBox Grid.Row="4"
                                           Grid.Column="0"
@@ -1870,12 +1882,24 @@
                                           Grid.Column="2"
                                           Margin="0,0,12,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropTypeListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineTuesdayType, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineTuesdayType, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <ComboBox Grid.Row="4"
                                           Grid.Column="3"
                                           Margin="0,0,0,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropCountryListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineTuesdayCountry, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineTuesdayCountry, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
 
                                 <CheckBox Grid.Row="5"
                                           Grid.Column="0"
@@ -1886,12 +1910,24 @@
                                           Grid.Column="2"
                                           Margin="0,0,12,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropTypeListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineWednesdayType, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineWednesdayType, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <ComboBox Grid.Row="5"
                                           Grid.Column="3"
                                           Margin="0,0,0,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropCountryListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineWednesdayCountry, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineWednesdayCountry, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
 
                                 <CheckBox Grid.Row="6"
                                           Grid.Column="0"
@@ -1902,12 +1938,24 @@
                                           Grid.Column="2"
                                           Margin="0,0,12,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropTypeListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineThursdayType, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineThursdayType, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <ComboBox Grid.Row="6"
                                           Grid.Column="3"
                                           Margin="0,0,0,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropCountryListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineThursdayCountry, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineThursdayCountry, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
 
                                 <CheckBox Grid.Row="7"
                                           Grid.Column="0"
@@ -1918,12 +1966,24 @@
                                           Grid.Column="2"
                                           Margin="0,0,12,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropTypeListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineFridayType, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineFridayType, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <ComboBox Grid.Row="7"
                                           Grid.Column="3"
                                           Margin="0,0,0,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropCountryListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineFridayCountry, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineFridayCountry, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
 
                                 <CheckBox Grid.Row="8"
                                           Grid.Column="0"
@@ -1934,12 +1994,24 @@
                                           Grid.Column="2"
                                           Margin="0,0,12,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropTypeListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineSaturdayType, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineSaturdayType, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <ComboBox Grid.Row="8"
                                           Grid.Column="3"
                                           Margin="0,0,0,8"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropCountryListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineSaturdayCountry, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineSaturdayCountry, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
 
                                 <CheckBox Grid.Row="9"
                                           Grid.Column="0"
@@ -1950,11 +2022,23 @@
                                           Grid.Column="2"
                                           Margin="0,0,12,0"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropTypeListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineSundayType, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineSundayType, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                                 <ComboBox Grid.Row="9"
                                           Grid.Column="3"
                                           ItemsSource="{Binding Source={x:Static pages:TaskSettingsPageViewModel.LeyLineOutcropCountryListWithEmpty}}"
-                                          SelectedItem="{Binding SelectedConfig.LeyLineSundayCountry, Mode=TwoWay}" />
+                                          SelectedItem="{Binding SelectedConfig.LeyLineSundayCountry, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{i18n:TBinding}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                             </Grid>
                         </StackPanel>
                     </ui:CardExpander>

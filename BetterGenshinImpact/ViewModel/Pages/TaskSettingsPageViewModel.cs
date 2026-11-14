@@ -27,6 +27,7 @@ using BetterGenshinImpact.Helpers.Ui;
 using BetterGenshinImpact.Service;
 using BetterGenshinImpact.Service.Interface;
 using BetterGenshinImpact.Service.Instance;
+using BetterGenshinImpact.Service.I18n;
 using BetterGenshinImpact.View.Pages;
 using BetterGenshinImpact.View.Windows;
 using BetterGenshinImpact.ViewModel.Pages.View;
@@ -172,8 +173,9 @@ public partial class TaskSettingsPageViewModel : ViewModel
 
     public static List<string> AvatarIndexList = ["", "1", "2", "3", "4"];
     public static List<string> CombatAvatarNameList = [.. AvatarProfiles.GetProfileNames()];
-    public static List<string> LeyLineOutcropTypeList = ["启示之花", "藏金之花"];
-    public static List<string> LeyLineOutcropCountryList = ["蒙德", "璃月", "稻妻", "须弥", "枫丹", "纳塔", "挪德卡莱", "至冬"];
+    // 地脉花类型与国家是任务逻辑比较的配置值，只标记为翻译 Key，界面通过 {i18n:TBinding} 展示译文
+    public static List<string> LeyLineOutcropTypeList = [I18nService.Key("启示之花"), I18nService.Key("藏金之花")];
+    public static List<string> LeyLineOutcropCountryList = [I18nService.Key("蒙德"), I18nService.Key("璃月"), I18nService.Key("稻妻"), I18nService.Key("须弥"), I18nService.Key("枫丹"), I18nService.Key("纳塔"), I18nService.Key("挪德卡莱"), I18nService.Key("至冬")];
     public static List<string> LeyLineOutcropTypeListWithEmpty = ["", .. LeyLineOutcropTypeList];
     public static List<string> LeyLineOutcropCountryListWithEmpty = ["", .. LeyLineOutcropCountryList];
 

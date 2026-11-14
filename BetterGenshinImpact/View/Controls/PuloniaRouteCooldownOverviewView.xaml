@@ -93,7 +93,7 @@
                      VirtualizingPanel.IsVirtualizing="True"
                      VirtualizingPanel.IsVirtualizingWhenGrouping="True"
                      VirtualizingPanel.VirtualizationMode="Recycling"
-                     AutomationProperties.Name="路线 CD 记录列表">
+                     AutomationProperties.Name="{i18n:T 路线 CD 记录列表}">
                 <ListBox.GroupStyle>
                     <GroupStyle>
                         <GroupStyle.HeaderTemplate>

@@ -32,7 +32,7 @@
         <TextBlock Margin="0,0,0,8" FontWeight="SemiBold" Text="{i18n:T 路线 CD}" />
         <TextBlock Margin="0,0,0,8"
                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                   Text="{Binding ConfigurationSource, Mode=OneWay, StringFormat=配置来源：{0}}" />
+                   Text="{Binding ConfigurationSourceText, Mode=OneWay}" />
         <ComboBox HorizontalAlignment="Stretch"
                   DisplayMemberPath="Value"
                   ItemsSource="{Binding Choices, Mode=OneWay}"

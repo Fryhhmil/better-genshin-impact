@@ -36,7 +36,7 @@
             <Grid.ColumnDefinitions><ColumnDefinition Width="176" /><ColumnDefinition Width="1" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
             <ui:ListView x:Name="CategoryList" ItemsSource="{Binding Source={StaticResource CategoryGroups}, Mode=OneWay}"
                          SelectedItem="{Binding SelectedCategory, Mode=TwoWay}" Margin="8,8,8,12" Padding="0" Background="Transparent" BorderThickness="0"
-                         AutomationProperties.Name="策略类别" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
+                         AutomationProperties.Name="{i18n:T 策略类别}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
                 <ui:ListView.ItemContainerStyle>
                     <Style TargetType="ui:ListViewItem" BasedOn="{StaticResource ListViewItemStyle}">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="12,6" />
@@ -54,7 +54,7 @@
         </Grid>
         <Border Grid.Row="2" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}" Padding="12,10">
             <DockPanel LastChildFill="True">
-                <ui:Button DockPanel.Dock="Right" Icon="{ui:SymbolIcon ArrowClockwise24}" Style="{StaticResource StrategyFooterButtonStyle}" Command="{Binding RefreshCommand, Mode=OneWay}" ToolTip="{i18n:T 刷新策略列表}" AutomationProperties.Name="刷新策略列表" Margin="4,0,0,0" />
+                <ui:Button DockPanel.Dock="Right" Icon="{ui:SymbolIcon ArrowClockwise24}" Style="{StaticResource StrategyFooterButtonStyle}" Command="{Binding RefreshCommand, Mode=OneWay}" ToolTip="{i18n:T 刷新策略列表}" AutomationProperties.Name="{i18n:T 刷新策略列表}" Margin="4,0,0,0" />
                 <WrapPanel VerticalAlignment="Center">
                     <ui:Button Content="{i18n:T 打开目录}" Icon="{ui:SymbolIcon FolderOpen24}" Style="{StaticResource StrategyFooterButtonStyle}" Command="{Binding OpenFolderCommand, Mode=OneWay}" />
                     <ui:Button Content="{i18n:T 脚本仓库}" Icon="{ui:SymbolIcon Box24}" Style="{StaticResource StrategyFooterButtonStyle}" Command="{Binding OpenRepositoryCommand, Mode=OneWay}" Visibility="{Binding ShowRepository, Mode=OneWay, Converter={StaticResource StrategyVisibility}}" />

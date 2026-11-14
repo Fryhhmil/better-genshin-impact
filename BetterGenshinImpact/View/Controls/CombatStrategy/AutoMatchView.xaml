@@ -21,7 +21,7 @@
             <StackPanel>
                 <ListBox x:Name="ScopeList" ItemsSource="{Binding Scopes, Mode=OneWay}" SelectedItem="{Binding SelectedScope, Mode=TwoWay}"
                          Style="{StaticResource StrategyListStyle}" ItemContainerStyle="{StaticResource StrategyListItemStyle}"
-                         ScrollViewer.VerticalScrollBarVisibility="Disabled" AutomationProperties.Name="文本策略匹配范围">
+                         ScrollViewer.VerticalScrollBarVisibility="Disabled" AutomationProperties.Name="{i18n:T 文本策略匹配范围}">
                     <ListBox.ItemTemplate><DataTemplate>
                         <Grid Margin="{Binding Depth, Mode=OneWay, Converter={StaticResource ScopeIndent}}" ToolTip="{Binding Title, Mode=OneWay}">
                             <Grid.ColumnDefinitions><ColumnDefinition Width="22" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
