@@ -1,3 +1,4 @@
+using BetterGenshinImpact.Service.I18n;
 using System.Collections.Generic;
 using System.Linq;
 using BetterGenshinImpact.GameTask.Common.Element.Assets;
@@ -12,6 +13,16 @@ namespace BetterGenshinImpact.Helpers;
 public static class DomainCascadingItems
 {
     private static IReadOnlyList<ICascadingItem>? _items;
+
+    /// <summary>
+    /// 登记国家名 i18n Key。国家名来自地图资源，同步工具无法静态扫描，在此用 I18nService.Key 显式登记；
+    /// 新增国家时需同步补充。
+    /// </summary>
+    private static readonly IReadOnlyList<string> CountryNameKeys =
+    [
+        I18nService.Key("蒙德"), I18nService.Key("璃月"), I18nService.Key("稻妻"), I18nService.Key("须弥"),
+        I18nService.Key("枫丹"), I18nService.Key("纳塔"), I18nService.Key("挪德卡莱"), I18nService.Key("至冬"),
+    ];
 
     public static IReadOnlyList<ICascadingItem> Items =>
         _items ??= BuildItems();
@@ -49,7 +60,8 @@ public static class DomainCascadingItems
         var items = MapLazyAssets.Get().CountryToDomains.Keys
             .Reverse()
             .Select(country => (ICascadingItem)new CascadingItem(
-                country,
+                // 国家只作为分组标签展示，可直接翻译；保存值为二级项 Tag 中的秘境名。
+                I18nService.Instance.Translate(country),
                 MapLazyAssets.Get().CountryToDomains[country]
                     .AsEnumerable()
                     .Reverse()

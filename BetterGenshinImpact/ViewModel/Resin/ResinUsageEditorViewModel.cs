@@ -1,3 +1,4 @@
+using BetterGenshinImpact.Service.I18n;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,7 +42,7 @@ public partial class ResinUsageEditorViewModel : ObservableObject, IResinSetting
     {
         _capability = capability;
         _confirm = confirm;
-        Title = $"树脂使用 · {taskName}";
+        Title = $"{I18nService.Instance.Translate("树脂使用")} · {I18nService.Instance.Translate(taskName)}";
         _mode = current.Mode;
         _runCount = current.RunCount;
         _initialTier = current.OriginalTier;
@@ -65,7 +66,7 @@ public partial class ResinUsageEditorViewModel : ObservableObject, IResinSetting
     /// <summary>档位只有一个选项时不可编辑。</summary>
     public bool IsTierEditable => _capability.Tiers.Count > 1;
     /// <summary>默认档位的任务专属含义，切换档位时仍保留这段说明。</summary>
-    public string TierDescription => _capability.Hints.DefaultTierDescription ?? "默认使用领奖界面当前档位";
+    public string TierDescription => I18nService.Instance.Translate(_capability.Hints.DefaultTierDescription ?? "默认使用领奖界面当前档位");
     /// <summary>刷至耗尽的单选状态；单选取消不反向切换方式。</summary>
     public bool IsExhaustMode { get => Mode == ResinUsageMode.Exhaust; set { if (value) Mode = ResinUsageMode.Exhaust; } }
     /// <summary>指定领奖次数的单选状态。</summary>

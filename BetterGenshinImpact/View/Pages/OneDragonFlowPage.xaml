@@ -109,7 +109,7 @@
                         <ItemsControl x:Name="ScriptGroupItemsControl">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <CheckBox Content="{Binding Name}"
+                                    <CheckBox Content="{i18n:TBinding Name}"
                                               Tag="{Binding}"
                                               Margin="0,2"/>
                                 </DataTemplate>
@@ -121,11 +121,11 @@
                                 HorizontalAlignment="Center" 
                                 Margin="0,12,0,0">
                         <Button Content="{i18n:T 确认}" 
-                                Width="70" 
+                                MinWidth="70" 
                                 Margin="0,0,10,0"
                                 Click="ConfirmButton_Click"/>
                         <Button Content="{i18n:T 取消}" 
-                                Width="70"
+                                MinWidth="70"
                                 Click="CancelButton_Click"/>
                     </StackPanel>
                 </StackPanel>
@@ -176,7 +176,7 @@
                                             <TextBlock Grid.Column="2"
                                                        VerticalAlignment="Center"
                                                        IsHitTestVisible="False"
-                                                       Text="{Binding Name}" Width="100">
+                                                       Text="{i18n:TBinding Name}" Width="100">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
                                                         <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />

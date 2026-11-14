@@ -35,7 +35,7 @@ public static class ResinUsageText
     {
         if (!capability.Modes.Contains(mode))
             return mode == ResinUsageMode.PerType
-                ? capability.Hints.PerTypeUnsupportedReason ?? I18nService.Instance.Translate("此任务不支持按树脂分别指定")
+                ? capability.Hints.PerTypeUnsupportedReason is { } perTypeReason ? I18nService.Instance.Translate(perTypeReason) : I18nService.Instance.Translate("此任务不支持按树脂分别指定")
                 : I18nService.Instance.Translate("此任务不支持此使用方式");
         return mode switch
         {
@@ -57,7 +57,7 @@ public static class ResinUsageText
     public static string KindDescription(ResinKind kind, ResinUsageMode mode, ResinUsageCapability capability)
     {
         if (!capability.IsSupported(kind))
-            return capability.Hints.UnsupportedReasons[kind] ?? string.Format(I18nService.Instance.Translate("此任务不能使用{0}"), LocalizedDisplayName(kind));
+            return capability.Hints.UnsupportedReasons[kind] is { } kindReason ? I18nService.Instance.Translate(kindReason) : string.Format(I18nService.Instance.Translate("此任务不能使用{0}"), LocalizedDisplayName(kind));
         if (mode == ResinUsageMode.PerType)
             return kind switch
             {

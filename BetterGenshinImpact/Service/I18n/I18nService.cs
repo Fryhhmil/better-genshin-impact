@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Wpf.Ui.Violeta.Appearance;
 
 namespace BetterGenshinImpact.Service.I18n;
 
@@ -48,9 +49,10 @@ public sealed class I18nService : INotifyPropertyChanged
             ? new Dictionary<string, string>()
             : LoadTranslations(language);
 
+        CultureInfo? culture = null;
         try
         {
-            var culture = CultureInfo.GetCultureInfo(language);
+            culture = CultureInfo.GetCultureInfo(language);
             CultureInfo.CurrentUICulture = culture;
             CultureInfo.DefaultThreadCurrentUICulture = culture;
         }
@@ -58,6 +60,10 @@ public sealed class I18nService : INotifyPropertyChanged
         {
             // 自定义语言文件名也允许使用；只是不修改 .NET 的 CurrentUICulture。
         }
+
+        // 同步 Wpf.Ui.Violeta 控件内置文案（如级联选择框的“请选择...”）的语言；
+        // 自定义语言无对应区域性时回退简体中文（#1846 曾固定为简体中文）。
+        I18N.Culture = culture ?? CultureInfo.GetCultureInfo(DefaultLanguage);
 
         _revision++;
         OnPropertyChanged(nameof(Revision));

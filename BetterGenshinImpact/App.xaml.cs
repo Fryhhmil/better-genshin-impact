@@ -508,7 +508,7 @@ public partial class App : Application
                 // Configuration
                 //services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));
 
-                I18N.Culture = new CultureInfo("zh-Hans"); // #1846
+                // #1846：Wpf.Ui.Violeta 控件库文案语言（I18N.Culture）改由 I18nService.ChangeLanguage 按界面语言设置。
             }
         )
         .Build();

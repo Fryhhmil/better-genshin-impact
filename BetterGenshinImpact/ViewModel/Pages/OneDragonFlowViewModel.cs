@@ -818,7 +818,7 @@ public partial class OneDragonFlowViewModel : ViewModel
     private void OnAddConfig()
     {
         // 添加配置
-        var str = PromptDialog.Prompt("请输入一条龙配置名称", "新增一条龙配置");
+        var str = PromptDialog.Prompt(I18nService.Instance.Translate("请输入一条龙配置名称"), I18nService.Instance.Translate("新增一条龙配置"));
         if (!string.IsNullOrEmpty(str))
         {
             // 检查是否已存在
@@ -917,7 +917,7 @@ public partial class OneDragonFlowViewModel : ViewModel
             return;
         }
 
-        var newName = PromptDialog.Prompt("请输入新的配置名称", "重命名配置", SelectedConfig.Name);
+        var newName = PromptDialog.Prompt(I18nService.Instance.Translate("请输入新的配置名称"), I18nService.Instance.Translate("重命名配置"), SelectedConfig.Name);
         if (string.IsNullOrEmpty(newName))
         {
             return;
