@@ -245,12 +245,12 @@
                                Command="{Binding RefreshRunsCommand, Mode=OneWay}"
                                Icon="{ui:SymbolIcon ArrowClockwise24}"
                                ToolTip="{i18n:T 刷新；运行状态变化时也会自动更新}"
-                               AutomationProperties.Name="刷新执行记录" />
+                               AutomationProperties.Name="{i18n:T 刷新执行记录}" />
                     <TextBlock VerticalAlignment="Center"
                                FontSize="12"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                Text="{Binding CountText, Mode=OneWay}"
-                               ToolTip="{Binding StorageDirectory, Mode=OneWay, StringFormat=记录保存在本机：{0}}" />
+                               ToolTip="{Binding StorageDirectoryToolTip, Mode=OneWay}" />
                 </DockPanel>
                 <ListBox Grid.Row="1"
                          Padding="0"
@@ -263,7 +263,7 @@
                          SelectedItem="{Binding SelectedRun, Mode=TwoWay}"
                          VirtualizingPanel.IsVirtualizing="True"
                          VirtualizingPanel.VirtualizationMode="Recycling"
-                         AutomationProperties.Name="执行记录列表">
+                         AutomationProperties.Name="{i18n:T 执行记录列表}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid>
@@ -295,9 +295,9 @@
                                     </Grid>
                                     <!-- 计划页只看当前计划，计划名与页面标题重复，仅在跨计划展示时显示。 -->
                                     <TextBlock Margin="0,2,0,0"
-                                               Text="{Binding PlanName, Mode=OneWay}"
+                                               Text="{i18n:TBinding PlanName}"
                                                TextTrimming="CharacterEllipsis"
-                                               ToolTip="{Binding PlanName, Mode=OneWay}"
+                                               ToolTip="{i18n:TBinding PlanName}"
                                                Visibility="{Binding DataContext.ShowPlanTitle, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource BoolVisibility}}" />
                                     <TextBlock Margin="0,3,0,0"
                                                FontSize="11"
@@ -429,7 +429,7 @@
                                 <TextBlock Margin="12,0,0,0"
                                            VerticalAlignment="Center"
                                            FontSize="14"
-                                           Text="{Binding PlanName, Mode=OneWay}"
+                                           Text="{i18n:TBinding PlanName}"
                                            Visibility="{Binding DataContext.ShowPlanTitle, Mode=OneWay, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolVisibility}}" />
                             </WrapPanel>
                             <TextBlock Margin="0,4,0,0"
@@ -523,7 +523,7 @@
                                      SelectedItem="{Binding SelectedRunNodeResult, Mode=TwoWay}"
                                      VirtualizingPanel.IsVirtualizing="True"
                                      VirtualizingPanel.VirtualizationMode="Recycling"
-                                     AutomationProperties.Name="任务结果列表">
+                                     AutomationProperties.Name="{i18n:T 任务结果列表}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>
@@ -544,15 +544,15 @@
                                                         <ColumnDefinition Width="Auto" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Text="{Binding TaskName, Mode=OneWay}"
+                                                    <TextBlock Text="{i18n:TBinding TaskName}"
                                                                TextTrimming="CharacterEllipsis"
-                                                               ToolTip="{Binding TaskName, Mode=OneWay}" />
+                                                               ToolTip="{i18n:TBinding TaskName}" />
                                                     <TextBlock Grid.Column="1"
                                                                Margin="8,0,0,0"
                                                                VerticalAlignment="Center"
                                                                FontSize="11"
                                                                Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                                               Text="{Binding TypeText, Mode=OneWay}" />
+                                                               Text="{i18n:TBinding TypeText}" />
                                                     <!-- 重试时标出第几次尝试，首次尝试不显示。 -->
                                                     <Border Grid.Column="2" Margin="8,0,0,0">
                                                         <Border.Style>
@@ -648,13 +648,13 @@
                                                        VerticalAlignment="Center"
                                                        FontSize="15"
                                                        FontWeight="SemiBold"
-                                                       Text="{Binding TaskName, Mode=OneWay}"
+                                                       Text="{i18n:TBinding TaskName}"
                                                        TextWrapping="Wrap" />
                                             <TextBlock Margin="0,0,12,0"
                                                        VerticalAlignment="Center"
                                                        FontSize="12"
                                                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                                                       Text="{Binding TypeText, Mode=OneWay}" />
+                                                       Text="{i18n:TBinding TypeText}" />
                                         </WrapPanel>
                                         <WrapPanel Margin="0,4,0,0">
                                             <ui:SymbolIcon Margin="0,0,6,0"

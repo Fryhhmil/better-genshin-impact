@@ -577,13 +577,13 @@
                         Grid.Column="0"
                         FontTypography="Body"
                         TextWrapping="Wrap"
-                        Text="显示遮罩边框" />
+                        Text="{i18n:T 显示遮罩边框}" />
                     <ui:TextBlock
                         Grid.Row="1"
                         Grid.Column="0"
                         Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
                         TextWrapping="Wrap"
-                        Text="围绕游戏窗口紫色的边框线" />
+                        Text="{i18n:T 围绕游戏窗口紫色的边框线}" />
                     <ui:ToggleSwitch
                         Grid.Row="0"
                         Grid.RowSpan="2"
@@ -1730,7 +1730,14 @@
                               MinWidth="120"
                               Margin="0,0,36,0"
                               ItemsSource="{Binding CountryList}"
-                              SelectedItem="{Binding SelectedCountry}" />
+                              SelectedItem="{Binding SelectedCountry}">
+                        <!--  国家名是保存值，仅展示时翻译  -->
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{i18n:TBinding}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
 
                 <!--  指定区域  -->
@@ -1757,7 +1764,14 @@
                               MinWidth="120"
                               Margin="0,0,36,0"
                               ItemsSource="{Binding Areas}"
-                              SelectedItem="{Binding SelectedArea}" />
+                              SelectedItem="{Binding SelectedArea}">
+                        <!--  区域名是保存值，仅展示时翻译，Key 登记见 StatueOfTheSevenI18nKeys  -->
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{i18n:TBinding}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
                 </Grid>
 
                 <Grid Margin="16">

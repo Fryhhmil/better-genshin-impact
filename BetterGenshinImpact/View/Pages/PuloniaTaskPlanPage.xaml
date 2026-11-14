@@ -469,9 +469,9 @@
                         <TextBlock x:Name="NodeNameText"
                                    Grid.Column="1"
                                    VerticalAlignment="Center"
-                                   Text="{Binding Name, Mode=OneWay}"
+                                   Text="{i18n:TBinding Name}"
                                    TextTrimming="CharacterEllipsis"
-                                   ToolTip="{Binding Name, Mode=OneWay}" />
+                                   ToolTip="{i18n:TBinding Name}" />
                         <!-- 分组执行多次时显示次数，执行一次时隐藏。 -->
                         <Border Grid.Column="2"
                                 Style="{StaticResource TreeBadgeStyle}"
@@ -721,7 +721,7 @@
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock FontWeight="SemiBold" Text="{Binding Name, Mode=OneWay}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name, Mode=OneWay}" />
+                                                <TextBlock FontWeight="SemiBold" Text="{i18n:TBinding Name}" TextTrimming="CharacterEllipsis" ToolTip="{i18n:TBinding Name}" />
                                                 <!-- 自动保存失败时在卡片上常驻提示，悬停查看原因。 -->
                                                 <ui:SymbolIcon Grid.Column="1"
                                                                Margin="4,0,0,0"
@@ -855,9 +855,9 @@
                                 <TextBlock VerticalAlignment="Center"
                                            FontSize="20"
                                            FontWeight="SemiBold"
-                                           Text="{Binding ViewModel.SelectedDocument.Name, Mode=OneWay}"
+                                           Text="{i18n:TBinding ViewModel.SelectedDocument.Name}"
                                            TextTrimming="CharacterEllipsis"
-                                           ToolTip="{Binding ViewModel.SelectedDocument.Name, Mode=OneWay}" />
+                                           ToolTip="{i18n:TBinding ViewModel.SelectedDocument.Name}" />
                                 <ui:Button Grid.Column="1"
                                            Margin="4,0,0,0"
                                            Style="{StaticResource ToolbarIconButtonStyle}"

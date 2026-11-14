@@ -616,9 +616,9 @@ public partial class TaskSettingsPageViewModel : ViewModel
             AcceptsReturn = true,
             VerticalAlignment = VerticalAlignment.Stretch,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-            PlaceholderText = "请在此输入兑换码，每行一条记录"
+            PlaceholderText = I18nService.Instance.Translate("请在此输入兑换码，每行一条记录")
         };
-        var dialog = new PromptDialog("输入兑换码", "自动使用兑换码", multilineTextBox, null)
+        var dialog = new PromptDialog(I18nService.Instance.Translate("输入兑换码"), I18nService.Instance.Translate("自动使用兑换码"), multilineTextBox, null)
         {
             Height = 500
         };
@@ -635,7 +635,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
             .ToList();
         if (codes.Count == 0)
         {
-            Toast.Warning("没有有效的兑换码");
+            Toast.Warning(I18nService.Instance.Translate("没有有效的兑换码"));
             return null;
         }
 

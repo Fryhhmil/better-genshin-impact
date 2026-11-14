@@ -92,12 +92,19 @@
                                       TextWrapping="Wrap" />
                     </Grid>
                 </ui:CardControl.Header>
+                <!--  选项可能是保存的中文 Key（如地脉花类型、国家），按界面语言展示，不改变保存值  -->
                 <ComboBox Margin="0"
                           MinWidth="160"
                           MaxWidth="360"
                           HorizontalAlignment="Right"
                           ItemsSource="{Binding Choices, Mode=OneWay}"
-                          SelectedItem="{Binding SelectedChoice, Mode=TwoWay}" />
+                          SelectedItem="{Binding SelectedChoice, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{i18n:TBinding}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </ui:CardControl>
 
         <!-- 战斗策略字段：使用统一的两级选择器。 -->
