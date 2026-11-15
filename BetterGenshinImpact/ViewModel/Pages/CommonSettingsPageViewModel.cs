@@ -62,6 +62,11 @@ public partial class CommonSettingsPageViewModel : ViewModel
     private readonly I18nService _i18nService;
 
     /// <summary>
+    /// 当前已应用的界面语言；下拉框双向绑定会先改写配置，因此单独记录用于判断语言是否真的改变。
+    /// </summary>
+    private string _appliedUiLanguage;
+
+    /// <summary>
     /// 外部访问令牌生成与校验服务。
     /// </summary>
     private readonly ExternalAccessTokenService _externalAccessTokenService;
@@ -149,6 +154,7 @@ public partial class CommonSettingsPageViewModel : ViewModel
         _customHtmlMaskService = customHtmlMaskService;
         _recognitionTemplateEditorService = recognitionTemplateEditorService;
         _i18nService = i18nService;
+        _appliedUiLanguage = Config.OtherConfig.UiCultureInfoName;
         ExternalAccessState = externalAccessState;
         _externalAccessTokenService = externalAccessTokenService;
         Config.ExternalAccessConfig.PropertyChanged += (_, args) =>
@@ -610,16 +616,34 @@ public partial class CommonSettingsPageViewModel : ViewModel
     // }
 
     [RelayCommand]
-    private void OnUiLanguageSelectionChanged(object? value)
+    private async Task OnUiLanguageSelectionChanged(object? value)
     {
         if (value is not KeyValuePair<string, string> language)
         {
             return;
         }
 
+        // 页面加载或重复选择同一语言时也会触发，此时不切换也不提示
+        if (string.Equals(_appliedUiLanguage, language.Key, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        _appliedUiLanguage = language.Key;
         Config.OtherConfig.UiCultureInfoName = language.Key;
         _i18nService.ChangeLanguage(language.Key);
         _configService.Save();
+
+        // 大部分文字已即时切换；启动时生成的文字（日志、托盘、已创建的窗口等）需重启才会更新，询问是否立即重启
+        var result = await ThemedMessageBox.QuestionAsync(
+            I18nService.Instance.Translate("部分界面文字需要重启 BetterGI 后才会切换为新语言。\n是否立即重启？正在运行的任务会被中断。"),
+            I18nService.Instance.Translate("切换语言"),
+            MessageBoxButton.YesNo,
+            MessageBoxResult.No);
+        if (result == MessageBoxResult.Yes)
+        {
+            SystemControl.RestartApplication([], graceful: true);
+        }
     }
 
     // 切换游戏语言不再重建 OCR：OCR 模型与游戏语言无关，由“OCR 配置”中的模型选择决定
