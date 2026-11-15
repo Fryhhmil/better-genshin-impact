@@ -208,11 +208,10 @@ public partial class CommonSettingsPageViewModel : ViewModel
             .ToFrozenDictionary(c => c, c => CultureInfoNameToKVPConverter.GetDisplayName(c));
 
     /// <summary>
-    /// 游戏语言选项。游戏内文字识别依赖对应语言的资源，因此与界面语言分开维护；
-    /// pt-BR 仅有界面翻译，暂不支持作为游戏语言。
+    /// 游戏语言选项。游戏内文字识别依赖对应语言的资源（GameTask 下各任务的 .resx），因此与界面语言分开维护。
     /// </summary>
     [ObservableProperty] private FrozenDictionary<string, string> _gameLanguageDict =
-        new[] { "zh-Hans", "zh-Hant", "en", "ja", "ru", "it" }
+        new[] { "zh-Hans", "zh-Hant", "en", "ja", "ru", "it", "pt-BR" }
             .ToFrozenDictionary(c => c, c => CultureInfoNameToKVPConverter.GetDisplayName(c));
 
     public string SelectedCountry
