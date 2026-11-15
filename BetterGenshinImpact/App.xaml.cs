@@ -39,6 +39,7 @@ using BetterGenshinImpact.Pulonia.Executors;
 using BetterGenshinImpact.Pulonia.Remote;
 using BetterGenshinImpact.Pulonia.Services;
 using BetterGenshinImpact.Service;
+using BetterGenshinImpact.Service.HoYoLab;
 using BetterGenshinImpact.Service.AccountRecords;
 using BetterGenshinImpact.Service.ChildSession;
 using BetterGenshinImpact.Service.ExternalAccess;
@@ -500,6 +501,8 @@ public partial class App : Application
                 services.AddSingleton<IMihoyoMapApiService, MihoyoMapApiService>();
                 services.AddSingleton<IKongyingTavernApiService, KongyingTavernApiService>();
                 services.AddSingleton<IHoYoLabMapApiService, HoYoLabMapApiService>();
+                services.AddSingleton<HoYoLabMarkApiService>(sp => new HoYoLabMarkApiService(sp.GetRequiredService<IHttpClientFactory>()));
+                services.AddSingleton<HoYoLabAccountService>(_ => new HoYoLabAccountService());
                 services.AddSingleton<IMaskMapPointService, MaskMapPointService>();
 
                 services.AddSingleton(TimeProvider.System);
