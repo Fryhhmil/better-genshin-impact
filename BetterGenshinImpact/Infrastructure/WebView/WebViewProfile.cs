@@ -81,7 +81,16 @@ public static class WebViewProfiles
     };
 
     /// <summary>
+    /// HoYoLAB 地图登录，Cookie 与其他网页隔离
+    /// </summary>
+    public static readonly WebViewProfile HoYoLab = new(WebViewEnvironments.App, "HoYoLab", I18nService.Key("软件内网页 · HoYoLAB 登录"))
+    {
+        Description = I18nService.Key("HoYoLAB 地图的登录状态（Cookie）"),
+        ClearsAllData = true,
+    };
+
+    /// <summary>
     /// 全部 Profile，供存储区域登记
     /// </summary>
-    public static IReadOnlyList<WebViewProfile> All { get; } = [Default, HtmlMask, Guide, ScriptSettings];
+    public static IReadOnlyList<WebViewProfile> All { get; } = [Default, HtmlMask, Guide, ScriptSettings, HoYoLab];
 }
