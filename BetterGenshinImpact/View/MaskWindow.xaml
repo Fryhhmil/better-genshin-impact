@@ -1145,13 +1145,13 @@
                                     </MultiBinding>
                                 </Grid.Height>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="540" />
+                                    <ColumnDefinition Width="640" />
                                     <ColumnDefinition Width="12" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
 
                                 <Border Grid.Column="0"
-                                        Width="540"
+                                        Width="640"
                                         Background="#C81F232A"
                                         BorderBrush="#26FFFFFF"
                                         BorderThickness="1"
@@ -1263,7 +1263,8 @@
                                                            Background="#FF2B2F37"
                                                            Foreground="White"
                                                            Cursor="Hand"
-                                                           Width="28"
+                                                           Width="32"
+                                                           Padding="0"
                                                            Icon="{ui:SymbolIcon ArrowSync24}"
                                                            ToolTip="{i18n:T 刷新账号标记}"
                                                            Command="{Binding RefreshHoYoLabMarksCommand}" />
@@ -1288,7 +1289,7 @@
 
                                         <Grid Grid.Row="2" Margin="12,0,12,12">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="140" />
+                                                <ColumnDefinition Width="170" />
                                                 <ColumnDefinition Width="12" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
@@ -1306,6 +1307,7 @@
                                                              Background="Transparent"
                                                              BorderThickness="0"
                                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                                              Cursor="Hand"
                                                              PreviewMouseLeftButtonDown="MapLabelCategoriesListView_OnPreviewMouseLeftButtonDown">
                                                     <ui:ListView.ItemTemplate>
@@ -1313,8 +1315,11 @@
                                                             <Border Margin="0,1"
                                                                     Padding="6,6"
                                                                     Background="Transparent">
+                                                                <!--  长名称（如葡萄牙语）换行显示，悬停显示全名  -->
                                                                 <TextBlock Foreground="White"
                                                                            Text="{Binding Name}"
+                                                                           ToolTip="{Binding Name}"
+                                                                           TextWrapping="Wrap"
                                                                            TextTrimming="CharacterEllipsis" />
                                                             </Border>
                                                         </DataTemplate>
@@ -1350,8 +1355,9 @@
                                                             </ItemsControl.ItemsPanel>
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
-                                                                    <Button Width="160"
+                                                                    <Button Width="190"
                                                                             Height="54"
+                                                                            ToolTip="{Binding Name}"
                                                                             Margin="0,0,8,8"
                                                                             Padding="8,0"
                                                                             HorizontalContentAlignment="Stretch"
@@ -1390,18 +1396,24 @@
                                                                             </Border>
 
                                                                             <TextBlock DockPanel.Dock="Right"
-                                                                                       Width="42"
+                                                                                       MinWidth="24"
+                                                                                       Margin="4,0,0,0"
                                                                                        VerticalAlignment="Center"
                                                                                        HorizontalAlignment="Right"
                                                                                        TextAlignment="Right"
                                                                                        Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
                                                                                        Text="{Binding PointCount}" />
 
+                                                                            <!--  名称最多两行，超出部分省略；完整名称见按钮提示  -->
                                                                             <TextBlock VerticalAlignment="Center"
                                                                                        Foreground="White"
                                                                                        HorizontalAlignment="Stretch"
                                                                                        TextAlignment="Left"
                                                                                        Text="{Binding Name}"
+                                                                                       TextWrapping="Wrap"
+                                                                                       MaxHeight="40"
+                                                                                       LineHeight="18"
+                                                                                       LineStackingStrategy="BlockLineHeight"
                                                                                        TextTrimming="CharacterEllipsis" />
                                                                         </DockPanel>
                                                                     </Button>
