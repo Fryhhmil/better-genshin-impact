@@ -45,7 +45,7 @@ public sealed class PuloniaKeyMouseTaskExecutor : IPuloniaTaskExecutor
         PuloniaTaskExecutionContext context, CancellationToken ct)
     {
         if (task.Resource is null && string.IsNullOrWhiteSpace(task.Path))
-            return PuloniaTaskOutcome.Failure("录制回放节点没有固定资源。");
+            return PuloniaTaskOutcome.Failure(I18nService.Instance.Translate("录制回放节点没有固定资源。"));
         // 回放只使用本节点租约记录的运行环境；它已停止时当前节点失败
         if (!context.TryGetRuntime(out var runtime, out var runtimeError))
             return PuloniaTaskOutcome.Failure(runtimeError);
@@ -62,7 +62,7 @@ public sealed class PuloniaKeyMouseTaskExecutor : IPuloniaTaskExecutor
         }
         await KeyMouseMacroPlayer.PlayMacro(runtime, json, ct, task.Parameters.Value<bool>("with_delay")).ConfigureAwait(false);
         ct.ThrowIfCancellationRequested();
-        return PuloniaTaskOutcome.ExecutedUnverified("键鼠宏已完整回放，但录制文件没有结构化副作用证据。",
+        return PuloniaTaskOutcome.ExecutedUnverified(I18nService.Instance.Translate("键鼠宏已完整回放，但录制文件没有结构化副作用证据。"),
             new JObject { ["resource_version"] = task.ResourceVersion });
     }
 }

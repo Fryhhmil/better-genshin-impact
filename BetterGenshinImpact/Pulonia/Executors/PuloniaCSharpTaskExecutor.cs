@@ -62,9 +62,9 @@ public sealed class PuloniaCSharpTaskExecutor : IPuloniaTaskExecutor
         var parameters = task.Parameters;
         var operation = parameters.Value<string>("operation");
         if (string.IsNullOrWhiteSpace(operation))
-            return Task.FromResult(PuloniaTaskOutcome.Failure("未指定进程内 C# 操作。"));
+            return Task.FromResult(PuloniaTaskOutcome.Failure(I18nService.Instance.Translate("未指定进程内 C# 操作。")));
         if (!_registry.TryGet(operation, out var handler) || handler is null)
-            return Task.FromResult(PuloniaTaskOutcome.Failure($"未注册进程内 C# 操作 {operation}。"));
+            return Task.FromResult(PuloniaTaskOutcome.Failure(string.Format(I18nService.Instance.Translate("未注册进程内 C# 操作 {0}。"), operation)));
         return handler(context, parameters, ct);
     }
 }

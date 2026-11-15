@@ -1,3 +1,4 @@
+using BetterGenshinImpact.Service.I18n;
 using BetterGenshinImpact.GameTask.Common.Resin;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -40,6 +41,6 @@ public partial class ResinKindRowViewModel : ObservableObject
         ShowToggle = !ShowCount;
         IsEditable = capability.IsSupported(Kind) && (ShowCount || capability.LockedKind != Kind);
         Description = ResinUsageText.KindDescription(Kind, mode, capability);
-        AutomationName = DisplayName + (ShowCount ? "领奖次数" : "使用开关");
+        AutomationName = DisplayName + (ShowCount ? I18nService.Instance.Translate("领奖次数") : I18nService.Instance.Translate("使用开关"));
     }
 }

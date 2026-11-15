@@ -559,7 +559,7 @@ public partial class PuloniaTaskCreationDialogViewModel : ViewModel
             var policy = PuloniaRouteCooldown.Resolve(resource.FullPath, resource.Resource, new JObject());
             return policy.Source == PuloniaRouteRefreshRuleSource.Unmatched
                 ? I18nService.Instance.Translate("路线 CD：未识别刷新规则，成功后不会跳过；添加后可在“共享设置 → 路线 CD”中选择自定义周期。")
-                : string.Format(I18nService.Instance.Translate("路线 CD：{0} · {1}"), policy.MaterialName, policy.Description);
+                : string.Format(I18nService.Instance.Translate("路线 CD：{0} · {1}"), policy.MaterialName, policy.DisplayDescription);
         }
         // 目录：统计索引中目录下的路线文件按自动识别的结果
         var prefix = resource.RelativePath.TrimEnd('/', '\\') + "/";

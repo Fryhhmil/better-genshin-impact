@@ -163,7 +163,7 @@ public sealed class PuloniaTaskNodeResultViewModel : ObservableObject
                 completion.Route, completion.TaskAddress,
                 PuloniaInstanceKey.DescribeDirectory(completion.Instance.Replace(':', '-')),
                 PuloniaTaskHistoryText.Time(completion.CompletedAt),
-                completion.Rule.ToRefreshRule(completion.Route).Description));
+                completion.Rule.ToRefreshRule(completion.Route).DisplayDescription));
 
     /// <summary>
     /// 把一项结果解释转换为展示文本；缺失的关键结果明确说明，不把缺失 bool 或退出码显示为 false 或 0。

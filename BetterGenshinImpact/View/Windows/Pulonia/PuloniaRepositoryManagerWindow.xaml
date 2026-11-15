@@ -108,7 +108,14 @@
                         <StackPanel Margin="0,12,0,0" Visibility="{Binding IsOfficial, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Margin="0,0,0,5" Text="{i18n:T 更新渠道}" />
                             <ComboBox ItemsSource="{Binding OfficialChannels}" SelectedItem="{Binding SelectedOfficialChannel, Mode=TwoWay}"
-                                      IsEnabled="{Binding CanEdit}" />
+                                      IsEnabled="{Binding CanEdit}">
+                                <!-- 渠道值会写入配置，仅在显示时翻译 -->
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{i18n:TBinding}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
                         </StackPanel>
                         <StackPanel Margin="0,12,0,0" Visibility="{Binding IsRemote, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <TextBlock Margin="0,0,0,5" Text="{i18n:T 仓库地址}" />

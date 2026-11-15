@@ -5,6 +5,7 @@ using BetterGenshinImpact.Helpers;
 using BetterGenshinImpact.Helpers.Ui;
 using System.ComponentModel;
 using BetterGenshinImpact.Model;
+using BetterGenshinImpact.Service.I18n;
 using BetterGenshinImpact.Service.Interface;
 using BetterGenshinImpact.View.Controls.Overlay;
 using BetterGenshinImpact.GameTask.MapMask;
@@ -138,7 +139,7 @@ namespace BetterGenshinImpact.ViewModel
 
         [ObservableProperty] private bool _isMapPointsLoading;
 
-        [ObservableProperty] private string _mapPointsLoadingText = "正在加载点位...";
+        [ObservableProperty] private string _mapPointsLoadingText = I18nService.Instance.Translate("正在加载点位...");
 
         public int MapPointTotalCount => MapPoints.Count;
 
@@ -166,8 +167,8 @@ namespace BetterGenshinImpact.ViewModel
 
         public IReadOnlyList<MapPointApiProviderOption> MapPointApiProviderOptions { get; } =
         [
-            new(MapPointApiProvider.MihoyoMap, "米游社大地图"),
-            new(MapPointApiProvider.KongyingTavern, "空荧酒馆"),
+            new(MapPointApiProvider.MihoyoMap, I18nService.Instance.Translate("米游社大地图")),
+            new(MapPointApiProvider.KongyingTavern, I18nService.Instance.Translate("空荧酒馆")),
             new(MapPointApiProvider.HoYoLab, "HoYoLab")
         ];
 
@@ -1177,7 +1178,7 @@ namespace BetterGenshinImpact.ViewModel
                 return labelName;
             }
 
-            return $"点位 {point.Id}";
+            return string.Format(I18nService.Instance.Translate("点位 {0}"), point.Id);
         }
 
         [RelayCommand]

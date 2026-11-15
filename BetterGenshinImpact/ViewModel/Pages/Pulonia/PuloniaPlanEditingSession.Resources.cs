@@ -80,8 +80,8 @@ public partial class PuloniaPlanEditingSession
                 node.CurrentDeclaredVersion = null;
                 node.ResourceCheckError = snapshot.Resource is not null || snapshot.Source?.Resource is not null
                     // “来源中已移除：”前缀被 PuloniaTaskNodeViewModel.ResourceUpdateText 用 StartsWith 判断，暂保持中文原文
-                    ? (ex is FileNotFoundException or DirectoryNotFoundException ? "来源中已移除：" : "检查失败：")
-                        + ex.Message + "；仍可使用已确认缓存。" : ex.Message;
+                    ? (ex is FileNotFoundException or DirectoryNotFoundException ? "来源中已移除：" : I18nService.Instance.Translate("检查失败："))
+                        + ex.Message + I18nService.Instance.Translate("；仍可使用已确认缓存。") : ex.Message;
             }
             UpdateResourceSummaries(documents);
         }

@@ -80,7 +80,7 @@ public sealed class PuloniaRouteCooldownEntryViewModel
         var rule = completion.Rule.ToRefreshRule(completion.Route);
         // 材料名保持原值，参与分组与排序（“未识别”排在最后）；组头显示时再翻译
         Material = rule.MaterialName ?? I18nService.Key("未识别");
-        RuleText = rule.Description;
+        RuleText = rule.DisplayDescription;
         LastSuccessText = PuloniaCooldownText.Time(completion.CompletedAt);
         var status = PuloniaRouteCooldown.GetStatus(rule, completion, now, serverUtcOffsetMinutes);
         State = status.State;

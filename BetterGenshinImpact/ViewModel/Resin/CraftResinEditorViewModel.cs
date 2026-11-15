@@ -33,7 +33,7 @@ public partial class CraftResinEditorViewModel : ObservableObject, IResinSetting
     /// <inheritdoc />
     public string Summary => ResinUsageText.CraftSummary(BuildValue());
     /// <inheritdoc />
-    public string? ValidationMessage => KeepResin && KeepAmount is < 1 or > 999 ? "保留数量须为 1–999。" : null;
+    public string? ValidationMessage => KeepResin && KeepAmount is < 1 or > 999 ? I18nService.Instance.Translate("保留数量须为 1–999。") : null;
     /// <inheritdoc />
     public bool CanConfirm => ValidationMessage is null;
 

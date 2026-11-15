@@ -506,7 +506,7 @@ public partial class PuloniaPlanEditingSession
             string.Format(I18nService.Instance.Translate("路线 CD（{0}）：{1}"), PuloniaCooldownText.Account(account.Name),
                 PuloniaCooldownText.State(status.State)),
             string.Format(I18nService.Instance.Translate("规则：{0} · {1}"), rule.MaterialName ?? I18nService.Instance.Translate("未识别"),
-                rule.Description)
+                rule.DisplayDescription)
         };
         if (status.LastSuccessAt is { } last) lines.Add(I18nService.Instance.Translate("上次成功：") + PuloniaCooldownText.Time(last));
         if (status.NextEligibleAt is { } eligible) lines.Add(I18nService.Instance.Translate("下次可执行：") + PuloniaCooldownText.Time(eligible));
@@ -563,7 +563,7 @@ public partial class PuloniaPlanEditingSession
                 || otherRule.FileIdentity != rule.FileIdentity || otherRule.Description == rule.Description)
                 continue;
             return string.Format(I18nService.Instance.Translate("同一路线在“{0} / {1}”中使用不同规则（{2}）。两处共用同一条完成记录，各自按自己的规则判定。"),
-                I18nService.Instance.Translate(document.Name), I18nService.Instance.Translate(other.Name), otherRule.Description);
+                I18nService.Instance.Translate(document.Name), I18nService.Instance.Translate(other.Name), otherRule.DisplayDescription);
         }
         return null;
     }

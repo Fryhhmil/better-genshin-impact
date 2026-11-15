@@ -141,13 +141,13 @@ public partial class TaskSettingsPageViewModel : ViewModel
     private int _autoStygianOnslaughtRoundNum;
 
     [ObservableProperty]
-    private string _switchAutoTrackButtonText = "启动";
+    private string _switchAutoTrackButtonText = I18nService.Instance.Translate("启动");
 
     [ObservableProperty]
-    private string _switchAutoTrackPathButtonText = "启动";
+    private string _switchAutoTrackPathButtonText = I18nService.Instance.Translate("启动");
 
     [ObservableProperty]
-    private string _switchAutoComboRunButtonText = "测试运行";
+    private string _switchAutoComboRunButtonText = I18nService.Instance.Translate("测试运行");
 
     private bool _autoComboRunRunning;
 
@@ -180,7 +180,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
     public static List<string> LeyLineOutcropCountryListWithEmpty = ["", .. LeyLineOutcropCountryList];
 
     [ObservableProperty]
-    private List<string> _autoMusicLevelList = ["传说", "大师", "困难", "普通", "所有"];
+    private List<string> _autoMusicLevelList = [I18nService.Key("传说"), I18nService.Key("大师"), I18nService.Key("困难"), I18nService.Key("普通"), I18nService.Key("所有")];
 
     [ObservableProperty]
     private AutoFightViewModel? _autoFightViewModel;
@@ -262,16 +262,16 @@ public partial class TaskSettingsPageViewModel : ViewModel
         Config = configService.Get();
         // 入口只整体替换配置；同配置上的其他页面入口会收到属性通知并刷新摘要。
         var domainConfig = Config.AutoDomainConfig;
-        DomainResin = ResinUsageConfigBinding.Create("自动秘境", AutoDomainTask.ResinCapability, domainConfig,
+        DomainResin = ResinUsageConfigBinding.Create(I18nService.Key("自动秘境"), AutoDomainTask.ResinCapability, domainConfig,
             domainConfig.EnsureResinUsage, value => domainConfig.ResinUsage = value, dialogs);
         var bossConfig = Config.AutoBossConfig;
-        BossResin = ResinUsageConfigBinding.Create("自动首领讨伐", AutoBossTask.ResinCapability, bossConfig,
+        BossResin = ResinUsageConfigBinding.Create(I18nService.Key("自动首领讨伐"), AutoBossTask.ResinCapability, bossConfig,
             bossConfig.EnsureResinUsage, value => bossConfig.ResinUsage = value, dialogs);
         var stygianConfig = Config.AutoStygianOnslaughtConfig;
-        StygianResin = ResinUsageConfigBinding.Create("自动幽境危战", AutoStygianOnslaughtTask.ResinCapability, stygianConfig,
+        StygianResin = ResinUsageConfigBinding.Create(I18nService.Key("自动幽境危战"), AutoStygianOnslaughtTask.ResinCapability, stygianConfig,
             stygianConfig.EnsureResinUsage, value => stygianConfig.ResinUsage = value, dialogs);
         var leyLineConfig = Config.AutoLeyLineOutcropConfig;
-        LeyLineResin = ResinUsageConfigBinding.Create("自动地脉花", AutoLeyLineOutcropTask.ResinCapability, leyLineConfig,
+        LeyLineResin = ResinUsageConfigBinding.Create(I18nService.Key("自动地脉花"), AutoLeyLineOutcropTask.ResinCapability, leyLineConfig,
             leyLineConfig.EnsureResinUsage, value => leyLineConfig.ResinUsage = value, dialogs);
         _configService = configService;
         _navigationService = navigationService;
@@ -331,10 +331,10 @@ public partial class TaskSettingsPageViewModel : ViewModel
     {
         var messageBox = new Wpf.Ui.Controls.MessageBox
         {
-            Title = "风险提示",
-            Content = "开启“领取奖励后扫描掉落物光柱”后，角色会在领奖完成后主动移动拾取。部分地脉花点位或特定配队下，可能因为移动范围较大而卡住。\n\n如果你愿意接受这个风险，请继续开启；否则将保持关闭。",
-            PrimaryButtonText = "接受风险并开启",
-            CloseButtonText = "不接受，保持关闭",
+            Title = I18nService.Instance.Translate("风险提示"),
+            Content = I18nService.Instance.Translate("开启“领取奖励后扫描掉落物光柱”后，角色会在领奖完成后主动移动拾取。部分地脉花点位或特定配队下，可能因为移动范围较大而卡住。\n\n如果你愿意接受这个风险，请继续开启；否则将保持关闭。"),
+            PrimaryButtonText = I18nService.Instance.Translate("接受风险并开启"),
+            CloseButtonText = I18nService.Instance.Translate("不接受，保持关闭"),
             Owner = Application.Current.MainWindow,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
@@ -460,7 +460,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
 
         var choices = new List<TargetItemOption>
         {
-            new(profile.BossMaterial, $"首领材料｜{profile.BossMaterial}")
+            new(profile.BossMaterial, string.Format(I18nService.Instance.Translate("首领材料｜{0}"), profile.BossMaterial))
         };
         foreach (var family in profile.GemFamilies)
         {
@@ -647,7 +647,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
         content = string.Empty;
         if (string.IsNullOrEmpty(Config.AutoGeniusInvokationConfig.StrategyName))
         {
-            Toast.Warning("请先选择策略");
+            Toast.Warning(I18nService.Instance.Translate("请先选择策略"));
             return true;
         }
 
@@ -655,7 +655,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
 
         if (!File.Exists(path))
         {
-            Toast.Error("策略文件不存在");
+            Toast.Error(I18nService.Instance.Translate("策略文件不存在"));
             return true;
         }
 
@@ -690,7 +690,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
     {
         if (string.IsNullOrEmpty(strategyName))
         {
-            UIDispatcherHelper.Invoke(() => { Toast.Warning("请先在下拉列表配置中选择战斗策略！"); });
+            UIDispatcherHelper.Invoke(() => { Toast.Warning(I18nService.Instance.Translate("请先在下拉列表配置中选择战斗策略！")); });
             path = string.Empty;
             return true;
         }
@@ -700,7 +700,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
         path = strategy.Path;
         if (!strategy.Exists)
         {
-            UIDispatcherHelper.Invoke(() => { Toast.Error("当前选择的自动战斗策略文件不存在"); });
+            UIDispatcherHelper.Invoke(() => { Toast.Error(I18nService.Instance.Translate("当前选择的自动战斗策略文件不存在")); });
             return true;
         }
 
@@ -828,7 +828,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
             // 暂停：取消 Tick 循环，行为树节点状态保留，下次点击继续
             _autoComboRunRunning = false;
             _autoComboRunPaused = true;
-            SwitchAutoComboRunButtonText = "继续";
+            SwitchAutoComboRunButtonText = I18nService.Instance.Translate("继续");
             _taskStopService.StopAll(TaskStopReason.UserRequested);
             return;
         }
@@ -836,13 +836,13 @@ public partial class TaskSettingsPageViewModel : ViewModel
         // 预检查：未建树时提示用户且不启动任务
         if (AutoComboRuntime.Session == null)
         {
-            UIDispatcherHelper.Invoke(() => { Toast.Warning("尚未构建行为树，请先运行一次自动连招任务完成建树"); });
+            UIDispatcherHelper.Invoke(() => { Toast.Warning(I18nService.Instance.Translate("尚未构建行为树，请先运行一次自动连招任务完成建树")); });
             return;
         }
 
         _autoComboRunRunning = true;
         _autoComboRunPaused = false;
-        SwitchAutoComboRunButtonText = "暂停";
+        SwitchAutoComboRunButtonText = I18nService.Instance.Translate("暂停");
         try
         {
             // 消费最近一次建树任务暂存的会话；独立运行需显式开启自带战斗结束检测（AutoFightParam 默认关闭）
@@ -856,7 +856,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
             _autoComboRunRunning = false;
             if (!_autoComboRunPaused)
             {
-                SwitchAutoComboRunButtonText = "测试运行";
+                SwitchAutoComboRunButtonText = I18nService.Instance.Translate("测试运行");
             }
         }
     }
@@ -876,11 +876,11 @@ public partial class TaskSettingsPageViewModel : ViewModel
             var config = Config.AutoComboBuildConfig;
             var models = await AutoComboModelListFetcher.FetchAsync(config.Provider, config.PlanningLlmEndpoint, config.ApiKey, CancellationToken.None);
             AutoComboModelNameList = new ObservableCollection<string>(models);
-            UIDispatcherHelper.Invoke(() => Toast.Success($"已拉取 {models.Count} 个模型，可在“LLM模型名”下拉选择"));
+            UIDispatcherHelper.Invoke(() => Toast.Success(string.Format(I18nService.Instance.Translate("已拉取 {0} 个模型，可在“LLM模型名”下拉选择"), models.Count)));
         }
         catch (Exception e)
         {
-            UIDispatcherHelper.Invoke(() => Toast.Error($"拉取模型列表失败：{e.Message}"));
+            UIDispatcherHelper.Invoke(() => Toast.Error(string.Format(I18nService.Instance.Translate("拉取模型列表失败：{0}"), e.Message)));
         }
         finally
         {
@@ -915,7 +915,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
     [RelayCommand]
     private async Task OnOpenArtifactSalvageTestOCRWindow()
     {
-        ArtifactOcrDialog ocrDialog = new ArtifactOcrDialog(0.70, 0.112, 0.275, 0.50, "圣遗物分解", this.Config.AutoArtifactSalvageConfig.JavaScript);
+        ArtifactOcrDialog ocrDialog = new ArtifactOcrDialog(0.70, 0.112, 0.275, 0.50, I18nService.Instance.Translate("圣遗物分解"), this.Config.AutoArtifactSalvageConfig.JavaScript);
         if (await ocrDialog.CaptureAsync()) { ocrDialog.ShowDialog(); }
     }
 
@@ -925,7 +925,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
         var list = ScriptControlViewModel.LoadAllJsScriptProjects();
         var stackPanel = ScriptControlViewModel.CreateJsScriptSelectionPanel(list, typeof(RadioButton));
 
-        var result = PromptDialog.Prompt("请选择需要复制的JS脚本", "请选择需要复制的JS脚本", stackPanel, new Size(500, 600));
+        var result = PromptDialog.Prompt(I18nService.Instance.Translate("请选择需要复制的JS脚本"), I18nService.Instance.Translate("请选择需要复制的JS脚本"), stackPanel, new Size(500, 600));
         if (!string.IsNullOrEmpty(result))
         {
             string? selectedFolderName = null;
@@ -951,7 +951,7 @@ public partial class TaskSettingsPageViewModel : ViewModel
                 Text = jsCode,
                 IsReadOnly = true
             };
-            var p = new PromptDialog($"{scriptProject.Manifest.Name}\r\n{scriptProject.Manifest.ShortDescription}\r\n\r\n将覆盖现有的JavaScript，是否继续？", $"预览 - {scriptProject.FolderName}", multilineTextBox, null);
+            var p = new PromptDialog($"{scriptProject.Manifest.Name}\r\n{scriptProject.Manifest.ShortDescription}\r\n\r\n{I18nService.Instance.Translate("将覆盖现有的JavaScript，是否继续？")}", string.Format(I18nService.Instance.Translate("预览 - {0}"), scriptProject.FolderName), multilineTextBox, null);
             p.Height = 600;
             p.MaxWidth = 800;
             p.ShowDialog();

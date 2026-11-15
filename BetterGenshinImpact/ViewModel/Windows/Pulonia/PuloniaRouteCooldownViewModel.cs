@@ -175,7 +175,7 @@ public partial class PuloniaRouteCooldownViewModel : ObservableObject
                     : policy.MaterialName is { } material
                         ? string.Format(I18nService.Instance.Translate("识别：目录「{0}」"), material)
                         : I18nService.Instance.Translate("识别：路径中没有已知的材料或类别目录，自动识别时成功后不会跳过，可选择“自定义周期”");
-                return string.Format(I18nService.Instance.Translate("{0}\n规则：{1}\n依据：{2}"), recognition, policy.Description,
+                return string.Format(I18nService.Instance.Translate("{0}\n规则：{1}\n依据：{2}"), recognition, policy.DisplayDescription,
                     // 与 PuloniaRouteCooldown.CompletionBasis 相同；该常量会持久化，此处写成字面量以便同步工具登记 Key。
                     I18nService.Instance.Translate("按整份文件执行成功估算采集完成"));
             }

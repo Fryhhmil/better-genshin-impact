@@ -66,7 +66,7 @@ public partial class ResinUsageEditorViewModel : ObservableObject, IResinSetting
     /// <summary>档位只有一个选项时不可编辑。</summary>
     public bool IsTierEditable => _capability.Tiers.Count > 1;
     /// <summary>默认档位的任务专属含义，切换档位时仍保留这段说明。</summary>
-    public string TierDescription => I18nService.Instance.Translate(_capability.Hints.DefaultTierDescription ?? "默认使用领奖界面当前档位");
+    public string TierDescription => I18nService.Instance.Translate(_capability.Hints.DefaultTierDescription ?? I18nService.Key("默认使用领奖界面当前档位"));
     /// <summary>刷至耗尽的单选状态；单选取消不反向切换方式。</summary>
     public bool IsExhaustMode { get => Mode == ResinUsageMode.Exhaust; set { if (value) Mode = ResinUsageMode.Exhaust; } }
     /// <summary>指定领奖次数的单选状态。</summary>
@@ -120,7 +120,7 @@ public partial class ResinUsageEditorViewModel : ObservableObject, IResinSetting
         if (value != ResinUsageMode.Exhaust || _restoring) return;
         var enabled = Kinds.Where(row => IsSupplement(row.Kind) && row.IsAllowed && _capability.IsSupported(row.Kind)).ToArray();
         if (enabled.Length > 0)
-            QueueConfirmation(new("刷至树脂耗尽", ResinUsageText.SwitchToExhaustMessage(enabled.Select(row => row.Kind))), enabled);
+            QueueConfirmation(new(I18nService.Instance.Translate("刷至树脂耗尽"), ResinUsageText.SwitchToExhaustMessage(enabled.Select(row => row.Kind))), enabled);
     }
 
     /// <summary>总次数变化后重新校验与更新摘要。</summary>
@@ -143,7 +143,7 @@ public partial class ResinUsageEditorViewModel : ObservableObject, IResinSetting
             else if (!_restoring && Mode == ResinUsageMode.Exhaust && IsSupplement(row.Kind)
                 && row.IsAllowed && _capability.IsSupported(row.Kind))
             {
-                QueueConfirmation(new($"使用{row.DisplayName}",
+                QueueConfirmation(new(string.Format(I18nService.Instance.Translate("使用{0}"), row.DisplayName),
                     ResinUsageText.EnableSupplementMessage(row.Kind, _capability.Kinds[row.Kind])), [row]);
             }
         }
