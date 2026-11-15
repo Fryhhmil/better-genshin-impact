@@ -148,7 +148,7 @@
     <value>insuficiente</value>
   </data>
   <data name="补充原粹树脂" xml:space="preserve">
-    <value>Reabastecer.*Resina.*Original</value>
+    <value>Reabastecer.*Resinas?.*Origina</value>
   </data>
   <data name="取消" xml:space="preserve">
     <value>Cancelar</value>
@@ -157,16 +157,16 @@
     <value>Usar</value>
   </data>
   <data name="浓缩树脂" xml:space="preserve">
-    <value>Resina Condensada</value>
+    <value>Resinas?\s*(Condensad|Concentrad)</value>
   </data>
   <data name="原粹树脂" xml:space="preserve">
-    <value>Resina Original</value>
+    <value>Resinas?\s*Origina(l|is)</value>
   </data>
   <data name="须臾树脂" xml:space="preserve">
-    <value>Resina Transiente</value>
+    <value>Resinas?\s*Transiente</value>
   </data>
   <data name="脆弱树脂" xml:space="preserve">
-    <value>Resina Frágil</value>
+    <value>Resinas?\s*Fr[aá]g(il|eis)</value>
   </data>
   <data name="地脉花_溢口" xml:space="preserve">
     <value>Afloramento|Linha\s*Ley</value>
