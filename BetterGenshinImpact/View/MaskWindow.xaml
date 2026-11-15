@@ -124,7 +124,7 @@
                     Grid.Column="0"
                     Grid.ColumnSpan="6"
                     ClipToBounds="True">
-                <controls:MiniMapPointsCanvas Visibility="{Binding Config.MapMaskConfig.MiniMapMaskEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
+                <controls:MiniMapPointsCanvas Visibility="{Binding ShowMiniMapPoints, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                               PointsSource="{Binding MapPoints}"
                                               LabelsSource="{Binding MapPointLabels}"
                                               Viewport="{Binding MiniMapViewport}"
@@ -707,7 +707,7 @@
             <controls:PointsCanvas Grid.Row="0" Grid.Column="0" Grid.RowSpan="4" Grid.ColumnSpan="6"
                                    x:Name="PointsCanvasControl"
                                    x:FieldModifier="private"
-                                   Visibility="{Binding IsInBigMapUi, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                   Visibility="{Binding ShowBigMapPoints, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                    PointsSource="{Binding MapPoints}"
                                    LabelsSource="{Binding MapPointLabels}"
@@ -1072,6 +1072,60 @@
                                                        Command="{Binding ToggleMapPointPickerCommand}" />
                                         </Border>
                                     </Grid>
+                                </Border>
+                            </Grid>
+                        </Viewbox>
+
+                        <!--  临时隐藏/显示全部标点：只影响显示，不修改标记；隐藏时按钮高亮提示  -->
+                        <Viewbox Grid.Row="3"
+                                 Grid.Column="2"
+                                 Stretch="Uniform"
+                                 HorizontalAlignment="Left"
+                                 VerticalAlignment="Stretch">
+                            <Grid Width="58"
+                                  Height="58">
+                                <Border BorderBrush="#77FDF5E4"
+                                        BorderThickness="6"
+                                        CornerRadius="28.5">
+                                    <Border.Effect>
+                                        <DropShadowEffect Opacity="0.25" BlurRadius="2" ShadowDepth="0" Color="#8C8C8C" />
+                                    </Border.Effect>
+                                    <Border Width="46"
+                                            Height="46"
+                                            CornerRadius="23">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#ECE5D8" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding AreMapPointsTemporarilyHidden, Mode=OneWay}" Value="True">
+                                                        <Setter Property="Background" Value="#FFD3BC8E" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <ui:Button Background="Transparent"
+                                                   Foreground="#3B4255"
+                                                   BorderBrush="Transparent"
+                                                   BorderThickness="0"
+                                                   Padding="8,0,0,0"
+                                                   FontSize="30"
+                                                   Cursor="Hand"
+                                                   Command="{Binding ToggleMapPointsTemporarilyHiddenCommand}">
+                                            <ui:Button.Style>
+                                                <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                                    <Setter Property="Appearance" Value="Transparent" />
+                                                    <Setter Property="Icon" Value="{ui:SymbolIcon Eye24}" />
+                                                    <Setter Property="ToolTip" Value="{i18n:T 临时隐藏全部标点}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding AreMapPointsTemporarilyHidden, Mode=OneWay}" Value="True">
+                                                            <Setter Property="Icon" Value="{ui:SymbolIcon EyeOff24}" />
+                                                            <Setter Property="ToolTip" Value="{i18n:T 显示全部标点}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ui:Button.Style>
+                                        </ui:Button>
+                                    </Border>
                                 </Border>
                             </Grid>
                         </Viewbox>

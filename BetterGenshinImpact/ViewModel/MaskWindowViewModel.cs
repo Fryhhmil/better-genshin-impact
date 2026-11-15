@@ -263,6 +263,8 @@ namespace BetterGenshinImpact.ViewModel
             InitHoYoLabAccount();
             // 分类网格高亮已选中的分类
             InitMapLabelSelectionHighlight();
+            // 临时隐藏全部标点的显示开关
+            InitMapPointsVisibility();
 
             WeakReferenceMessenger.Default.Register<PropertyChangedMessage<object>>(this, (sender, msg) =>
             {
@@ -812,6 +814,7 @@ namespace BetterGenshinImpact.ViewModel
         {
             OnPropertyChanged(nameof(IsClickThrough));
             OnPropertyChanged(nameof(IsCrosshairVisible));
+            OnPropertyChanged(nameof(ShowBigMapPoints));
 
             if (!value)
             {
