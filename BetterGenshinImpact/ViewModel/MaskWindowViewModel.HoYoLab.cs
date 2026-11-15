@@ -43,14 +43,9 @@ namespace BetterGenshinImpact.ViewModel
         private readonly HoYoLabAccountService _hoYoLabAccount;
 
         /// <summary>
-        /// 账号已标记的点位 ID；尚未加载完成时为 null，此时暂用本地状态
+        /// 账号标记缓存；尚未加载成功时暂用本地状态
         /// </summary>
-        private HashSet<long>? _accountMarkedIds;
-
-        /// <summary>
-        /// 账号标记加载版本号，丢弃过期的加载结果
-        /// </summary>
-        private int _accountMarksLoadVersion;
+        private readonly HoYoLabMarkTracker _markTracker = new();
 
         /// <summary>
         /// 是否正在上传本地标记
@@ -107,8 +102,7 @@ namespace BetterGenshinImpact.ViewModel
         /// </summary>
         private void OnHoYoLabSessionChanged()
         {
-            _accountMarkedIds = null;
-            Interlocked.Increment(ref _accountMarksLoadVersion);
+            _markTracker.Reset();
             NotifyHoYoLabAccountPropertiesChanged();
             if (IsHoYoLabAccountMode)
             {
@@ -126,7 +120,7 @@ namespace BetterGenshinImpact.ViewModel
         private void OnHoYoLabProviderChanged()
         {
             NotifyHoYoLabAccountPropertiesChanged();
-            if (IsHoYoLabAccountMode && _accountMarkedIds == null)
+            if (IsHoYoLabAccountMode && _markTracker.NeedsLoad)
             {
                 _ = RefreshHoYoLabMarksAsync();
             }
@@ -151,13 +145,25 @@ namespace BetterGenshinImpact.ViewModel
         /// <returns>是否已用账号标记填充；false 时调用方继续读取本地状态</returns>
         private bool TryLoadAccountHiddenKeys()
         {
-            if (!IsHoYoLabAccountMode || _accountMarkedIds == null)
+            if (!IsHoYoLabAccountMode)
             {
                 return false;
             }
 
+            var marked = _markTracker.MarkedIds;
+            if (marked == null)
+            {
+                // 首次加载失败或尚未加载：每次重新载入点位时重试
+                if (_markTracker.NeedsLoad)
+                {
+                    _ = RefreshHoYoLabMarksAsync();
+                }
+
+                return false;
+            }
+
             var lang = HoYoLabMapApiService.NormalizeLanguage(Config.MapMaskConfig.HoYoLabLanguage);
-            foreach (var id in _accountMarkedIds)
+            foreach (var id in marked)
             {
                 _hiddenMapPointIds.Add(MapMarkSync.ToKey(lang, id));
             }
@@ -207,18 +213,17 @@ namespace BetterGenshinImpact.ViewModel
                 return;
             }
 
-            var version = Interlocked.Increment(ref _accountMarksLoadVersion);
+            var version = _markTracker.BeginLoad();
             var lang = HoYoLabMapApiService.NormalizeLanguage(Config.MapMaskConfig.HoYoLabLanguage);
             try
             {
                 var ids = await _hoYoLabMarkApi.GetMarkedPointIdsAsync(cookie, HoYoLabMapId, lang, CancellationToken.None);
-                // 加载期间登录状态或数据源已变化时丢弃结果
-                if (version != Volatile.Read(ref _accountMarksLoadVersion) || !IsHoYoLabAccountMode)
+                // 加载期间发生过右键切换、登录状态或数据源变化时丢弃结果
+                if (!_markTracker.CompleteLoad(version, ids) || !IsHoYoLabAccountMode)
                 {
                     return;
                 }
 
-                _accountMarkedIds = new HashSet<long>(ids);
                 ReapplyHiddenMapPoints();
                 _logger.LogInformation("已同步 HoYoLAB 账号标记：{Count} 个", ids.Count);
             }
@@ -228,37 +233,62 @@ namespace BetterGenshinImpact.ViewModel
             }
             catch (Exception ex)
             {
+                _markTracker.FailLoad(version);
                 _logger.LogWarning("读取 HoYoLAB 账号标记失败：{Message}", ex.Message);
             }
         }
 
         /// <summary>
-        /// 右键切换后同步到账号；失败时恢复点位原状态
+        /// 账号模式下的右键切换：同一点位请求未完成时忽略；界面先更新，再同步到 HoYoLAB，失败时恢复
         /// </summary>
         /// <param name="point">切换的点位</param>
-        /// <param name="hidden">切换后的状态，true 表示已标记</param>
-        private async Task SyncToggleToAccountAsync(MaskMapPoint point, bool hidden)
+        private void ToggleAccountMark(MaskMapPoint point)
         {
-            var cookie = _hoYoLabAccount.CookieHeader;
-            if (cookie == null || !long.TryParse(point.Id, out var pointId))
+            if (!long.TryParse(point.Id, out var pointId))
             {
                 _logger.LogDebug("HoYoLAB 点位 ID 无法解析：{Id}", point.Id);
                 return;
             }
 
+            var key = GetMapPointKey(point);
+            var hidden = !_hiddenMapPointIds.Contains(key);
+            if (!_markTracker.TryBeginToggle(pointId, hidden))
+            {
+                return;
+            }
+
+            SetHiddenKey(key, hidden);
+            _ = SyncToggleToAccountAsync(key, pointId, hidden);
+        }
+
+        /// <summary>
+        /// 把切换结果发送到账号；失败时把点位恢复为切换前的状态
+        /// </summary>
+        /// <param name="key">点位键</param>
+        /// <param name="pointId">点位 ID</param>
+        /// <param name="hidden">切换后的状态，true 表示已标记</param>
+        private async Task SyncToggleToAccountAsync(string key, long pointId, bool hidden)
+        {
+            var cookie = _hoYoLabAccount.CookieHeader;
             var lang = HoYoLabMapApiService.NormalizeLanguage(Config.MapMaskConfig.HoYoLabLanguage);
+            var success = false;
             try
             {
+                if (cookie == null)
+                {
+                    return;
+                }
+
                 if (hidden)
                 {
                     await _hoYoLabMarkApi.AddMarkAsync(cookie, HoYoLabMapId, pointId, lang, CancellationToken.None);
-                    _accountMarkedIds?.Add(pointId);
                 }
                 else
                 {
                     await _hoYoLabMarkApi.DeleteMarkAsync(cookie, HoYoLabMapId, pointId, lang, CancellationToken.None);
-                    _accountMarkedIds?.Remove(pointId);
                 }
+
+                success = true;
             }
             catch (HoYoLabSessionExpiredException)
             {
@@ -267,28 +297,30 @@ namespace BetterGenshinImpact.ViewModel
             catch (Exception ex)
             {
                 _logger.LogWarning("HoYoLAB 标记同步失败：{Message}", ex.Message);
-                RevertToggle(point, hidden);
+            }
+            finally
+            {
+                _markTracker.EndToggle(pointId, hidden, success);
+                // 同一点位的请求是串行的，失败时直接恢复为切换前的状态
+                if (!success && IsHoYoLabAccountMode)
+                {
+                    SetHiddenKey(key, !hidden);
+                }
             }
         }
 
         /// <summary>
-        /// 同步失败时把点位恢复为切换前的状态
+        /// 设置单个点位键的隐藏状态并刷新显示
         /// </summary>
-        private void RevertToggle(MaskMapPoint point, bool hidden)
+        private void SetHiddenKey(string key, bool hidden)
         {
-            if (!IsHoYoLabAccountMode)
-            {
-                return;
-            }
-
-            var key = GetMapPointKey(point);
             if (hidden)
             {
-                _hiddenMapPointIds.Remove(key);
+                _hiddenMapPointIds.Add(key);
             }
             else
             {
-                _hiddenMapPointIds.Add(key);
+                _hiddenMapPointIds.Remove(key);
             }
 
             ApplyMapPointHiddenStates();
@@ -311,8 +343,15 @@ namespace BetterGenshinImpact.ViewModel
         private async Task UploadLocalMarksAsync()
         {
             var cookie = _hoYoLabAccount.CookieHeader;
-            if (_isUploadingLocalMarks || !IsHoYoLabAccountMode || cookie == null || _accountMarkedIds == null)
+            if (_isUploadingLocalMarks || !IsHoYoLabAccountMode || cookie == null)
             {
+                return;
+            }
+
+            var marked = _markTracker.MarkedIds;
+            if (marked == null)
+            {
+                _logger.LogWarning("HoYoLAB 账号标记尚未加载，请先点击刷新");
                 return;
             }
 
@@ -324,7 +363,7 @@ namespace BetterGenshinImpact.ViewModel
                 localIds.AddRange(MapMarkSync.ParseLocalPointIds(keys));
             }
 
-            var pending = MapMarkSync.PendingUpload(localIds, _accountMarkedIds);
+            var pending = MapMarkSync.PendingUpload(localIds, marked);
             if (pending.Count == 0)
             {
                 _logger.LogInformation("没有需要上传的本地标记");

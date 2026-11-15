@@ -1216,6 +1216,13 @@ namespace BetterGenshinImpact.ViewModel
                 return;
             }
 
+            // 已登录 HoYoLAB：标记以账号为准
+            if (IsHoYoLabAccountMode)
+            {
+                ToggleAccountMark(point);
+                return;
+            }
+
             var key = GetMapPointKey(point);
             if (!_hiddenMapPointIds.Add(key))
             {
@@ -1225,12 +1232,6 @@ namespace BetterGenshinImpact.ViewModel
             ApplyMapPointHiddenStates();
             SaveHiddenMapPointKeysToStorage();
             SyncPointInfoPopupHiddenState();
-
-            // 账号模式：界面先更新，再同步到 HoYoLAB，失败时恢复
-            if (IsHoYoLabAccountMode)
-            {
-                _ = SyncToggleToAccountAsync(point, _hiddenMapPointIds.Contains(key));
-            }
         }
 
         [RelayCommand(CanExecute = nameof(CanChangeAllMapPoints))]
