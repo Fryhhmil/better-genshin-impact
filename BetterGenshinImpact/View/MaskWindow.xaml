@@ -1108,6 +1108,7 @@
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
                                             <RowDefinition Height="*" />
                                         </Grid.RowDefinitions>
 
@@ -1186,7 +1187,52 @@
                                             </StackPanel>
                                         </Grid>
 
-                                        <Grid Grid.Row="1" Margin="12,0,12,12">
+                                        <!--  HoYoLAB 账号：登录后右键标记同步到账号  -->
+                                        <StackPanel Grid.Row="1" Margin="12,0,12,8" Orientation="Horizontal">
+                                                <ui:Button Height="28"
+                                                           Margin="0,0,6,0"
+                                                           Background="#FF2B2F37"
+                                                           Foreground="White"
+                                                           Cursor="Hand"
+                                                           Icon="{ui:SymbolIcon Person24}"
+                                                           Content="{i18n:T 登录 HoYoLAB}"
+                                                           Visibility="{Binding ShowHoYoLabLoginButton, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                           Command="{Binding LoginHoYoLabCommand}" />
+                                            <StackPanel Orientation="Horizontal"
+                                                        Visibility="{Binding ShowHoYoLabAccountPanel, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <TextBlock VerticalAlignment="Center"
+                                                           Margin="0,0,8,0"
+                                                           Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
+                                                           Text="{Binding HoYoLabAccountText, Mode=OneWay}" />
+                                                <ui:Button Height="28"
+                                                           Margin="0,0,6,0"
+                                                           Background="#FF2B2F37"
+                                                           Foreground="White"
+                                                           Cursor="Hand"
+                                                           Width="28"
+                                                           Icon="{ui:SymbolIcon ArrowSync24}"
+                                                           ToolTip="{i18n:T 刷新账号标记}"
+                                                           Command="{Binding RefreshHoYoLabMarksCommand}" />
+                                                <ui:Button Height="28"
+                                                           Margin="0,0,6,0"
+                                                           Background="#FF2B2F37"
+                                                           Foreground="White"
+                                                           Cursor="Hand"
+                                                           Icon="{ui:SymbolIcon CloudArrowUp24}"
+                                                           Content="{i18n:T 上传本地标记}"
+                                                           Command="{Binding UploadLocalMarksCommand}" />
+                                                <ui:Button Height="28"
+                                                           Margin="0,0,6,0"
+                                                           Background="#FF2B2F37"
+                                                           Foreground="White"
+                                                           Cursor="Hand"
+                                                           Icon="{ui:SymbolIcon SignOut24}"
+                                                           Content="{i18n:T 退出登录}"
+                                                           Command="{Binding LogoutHoYoLabCommand}" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <Grid Grid.Row="2" Margin="12,0,12,12">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="140" />
                                                 <ColumnDefinition Width="12" />

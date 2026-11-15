@@ -27,6 +27,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using BetterGenshinImpact.GameTask.Common.Element.Assets;
 using BetterGenshinImpact.Service;
+using BetterGenshinImpact.Service.HoYoLab;
 using BetterGenshinImpact.Model.MaskMap;
 using BetterGenshinImpact.Service.Model;
 using BetterGenshinImpact.Service.Model.OverlayMetric;
@@ -231,7 +232,9 @@ namespace BetterGenshinImpact.ViewModel
             IMaskWindowSnapshotSource<MaskWindowMapSnapshot> mapSource,
             ILogger<MaskWindowViewModel> logger,
             GameRuntimeService runtimeService,
-            IMaskWindowDrawingBoard drawingBoard)
+            IMaskWindowDrawingBoard drawingBoard,
+            HoYoLabMarkApiService hoYoLabMarkApi,
+            HoYoLabAccountService hoYoLabAccount)
         {
             Config = configService.Get();
             _overlayMetricsService = overlayMetricsService;
@@ -241,6 +244,8 @@ namespace BetterGenshinImpact.ViewModel
             _logger = logger;
             _runtimeService = runtimeService;
             _drawingBoard = drawingBoard;
+            _hoYoLabMarkApi = hoYoLabMarkApi;
+            _hoYoLabAccount = hoYoLabAccount;
             // 遮罩缩放、DPI 与 FPS 进程号跟随绑定变化（Started / Stopped 在 UI 线程上触发）
             _runtimeService.Started += OnRuntimeStarted;
             _runtimeService.Stopped += OnRuntimeStopped;
@@ -254,6 +259,8 @@ namespace BetterGenshinImpact.ViewModel
             DrawingStyle = CreateDrawingStyle();
 
             PointInfoPopup.ToggleHiddenRequested += (_, point) => ToggleMapPointHidden(point);
+            // 已登录 HoYoLAB 时以账号标记为准
+            InitHoYoLabAccount();
 
             WeakReferenceMessenger.Default.Register<PropertyChangedMessage<object>>(this, (sender, msg) =>
             {
@@ -474,6 +481,7 @@ namespace BetterGenshinImpact.ViewModel
         partial void OnSelectedMapPointApiProviderOptionChanged(MapPointApiProviderOption? value)
         {
             OnPropertyChanged(nameof(IsHoYoLabProviderSelected));
+            NotifyHoYoLabAccountPropertiesChanged();
             if (value == null)
             {
                 return;
@@ -543,6 +551,7 @@ namespace BetterGenshinImpact.ViewModel
                     Config.MapMaskConfig.MapPointApiProvider = provider;
                 }
 
+                OnHoYoLabProviderChanged();
                 await ResetAndReloadMapPointPickerAsync();
             }
             catch (Exception ex)
@@ -1216,9 +1225,15 @@ namespace BetterGenshinImpact.ViewModel
             ApplyMapPointHiddenStates();
             SaveHiddenMapPointKeysToStorage();
             SyncPointInfoPopupHiddenState();
+
+            // 账号模式：界面先更新，再同步到 HoYoLAB，失败时恢复
+            if (IsHoYoLabAccountMode)
+            {
+                _ = SyncToggleToAccountAsync(point, _hiddenMapPointIds.Contains(key));
+            }
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanChangeAllMapPoints))]
         private void HideAllMapPoints()
         {
             if (MapPoints.Count == 0)
@@ -1237,7 +1252,7 @@ namespace BetterGenshinImpact.ViewModel
             SyncPointInfoPopupHiddenState();
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanChangeAllMapPoints))]
         private void ShowAllMapPoints()
         {
             if (_hiddenMapPointIds.Count == 0)
@@ -1311,6 +1326,10 @@ namespace BetterGenshinImpact.ViewModel
         private void LoadHiddenMapPointKeysFromStorage()
         {
             _hiddenMapPointIds.Clear();
+            if (TryLoadAccountHiddenKeys())
+            {
+                return;
+            }
 
             var keys = MapMaskStateStorage.Read(GetMapMaskDataSourceKey()).HiddenMapPointKeys;
             foreach (var key in keys)
@@ -1324,7 +1343,8 @@ namespace BetterGenshinImpact.ViewModel
 
         private void SaveHiddenMapPointKeysToStorage()
         {
-            if (_isRestoringMapMaskState)
+            // 账号模式下不写本地文件，保留仅存在于本地的标记供上传
+            if (_isRestoringMapMaskState || IsHoYoLabAccountMode)
             {
                 return;
             }
