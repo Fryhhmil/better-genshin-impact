@@ -1299,15 +1299,27 @@
                                                                     <Button Width="160"
                                                                             Height="54"
                                                                             Margin="0,0,8,8"
-                                                                            Background="#B22C323C"
-                                                                            BorderBrush="#403A424F"
-                                                                            BorderThickness="1"
                                                                             Padding="8,0"
                                                                             HorizontalContentAlignment="Stretch"
                                                                             VerticalContentAlignment="Center"
                                                                             Cursor="Hand"
                                                                             Command="{Binding DataContext.SelectMapLabelItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                             CommandParameter="{Binding}">
+                                                                        <!--  已选中（正在地图上显示）的分类用蓝色边框和底色高亮  -->
+                                                                        <Button.Style>
+                                                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                                                <Setter Property="Background" Value="#B22C323C" />
+                                                                                <Setter Property="BorderBrush" Value="#403A424F" />
+                                                                                <Setter Property="BorderThickness" Value="1" />
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding IsSelected, Mode=OneWay}" Value="True">
+                                                                                        <Setter Property="Background" Value="#CC1F4E7A" />
+                                                                                        <Setter Property="BorderBrush" Value="#FF4AA3FF" />
+                                                                                        <Setter Property="BorderThickness" Value="2" />
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </Button.Style>
                                                                         <DockPanel HorizontalAlignment="Stretch"
                                                                                    VerticalAlignment="Center"
                                                                                    LastChildFill="True">

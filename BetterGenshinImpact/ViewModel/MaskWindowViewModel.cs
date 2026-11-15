@@ -261,6 +261,8 @@ namespace BetterGenshinImpact.ViewModel
             PointInfoPopup.ToggleHiddenRequested += (_, point) => ToggleMapPointHidden(point);
             // 已登录 HoYoLAB 时以账号标记为准
             InitHoYoLabAccount();
+            // 分类网格高亮已选中的分类
+            InitMapLabelSelectionHighlight();
 
             WeakReferenceMessenger.Default.Register<PropertyChangedMessage<object>>(this, (sender, msg) =>
             {
@@ -1407,6 +1409,11 @@ namespace BetterGenshinImpact.ViewModel
         public string ParentId { get; }
 
         [ObservableProperty] private ImageSource? _iconImage;
+
+        /// <summary>
+        /// 是否已选中（正在地图上显示），网格中高亮显示
+        /// </summary>
+        [ObservableProperty] private bool _isSelected;
 
         public MapLabelItemVm(MaskMapPointLabel item)
         {
