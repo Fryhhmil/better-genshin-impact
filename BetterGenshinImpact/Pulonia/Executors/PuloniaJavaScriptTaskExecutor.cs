@@ -1,3 +1,4 @@
+using BetterGenshinImpact.Service.I18n;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -26,8 +27,8 @@ public sealed class PuloniaJavaScriptTaskExecutor : IPuloniaTaskExecutor
     public IReadOnlyList<PuloniaTaskDefinition> Definitions { get; } = [new()
     {
         TaskType = "javascript",
-        DisplayName = "JS 脚本",
-        Description = "从已拉取的脚本仓库选择 JS 项目，并配置脚本设置与队伍选项。",
+        DisplayName = I18nService.Key("JS 脚本"),
+        Description = I18nService.Key("从已拉取的脚本仓库选择 JS 项目，并配置脚本设置与队伍选项。"),
         RequiresGameSession = true,
         ResourceBaseDirectory = Global.ScriptPath(),
         DefaultParameters = new(PuloniaTaskCommonSettings.CreateDefaults("javascript"))

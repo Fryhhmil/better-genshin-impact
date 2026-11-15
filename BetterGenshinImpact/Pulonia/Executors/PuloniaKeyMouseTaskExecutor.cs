@@ -1,3 +1,4 @@
+using BetterGenshinImpact.Service.I18n;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -21,8 +22,8 @@ public sealed class PuloniaKeyMouseTaskExecutor : IPuloniaTaskExecutor
     public IReadOnlyList<PuloniaTaskDefinition> Definitions { get; } = [new()
     {
         TaskType = "keymouse",
-        DisplayName = "录制回放",
-        Description = "选择本地键鼠录制文件，并配置是否按录制延时回放。",
+        DisplayName = I18nService.Key("录制回放"),
+        Description = I18nService.Key("选择本地键鼠录制文件，并配置是否按录制延时回放。"),
         RequiresGameSession = true,
         ResourceBaseDirectory = Global.Absolute(@"User\KeyMouseScript"),
         DefaultParameters = new JObject { ["with_delay"] = false },

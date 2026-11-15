@@ -1,3 +1,4 @@
+using BetterGenshinImpact.Service.I18n;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,8 +40,8 @@ public sealed class PuloniaPathingTaskExecutor : IPuloniaTaskExecutor
     public IReadOnlyList<PuloniaTaskDefinition> Definitions { get; } = [new()
     {
         TaskType = "pathing",
-        DisplayName = "地图追踪",
-        Description = "从已拉取的脚本仓库选择路线，并配置队伍、自动拾取与自动战斗选项。",
+        DisplayName = I18nService.Key("地图追踪"),
+        Description = I18nService.Key("从已拉取的脚本仓库选择路线，并配置队伍、自动拾取与自动战斗选项。"),
         RequiresGameSession = true,
         ResourceBaseDirectory = MapPathingViewModel.PathJsonPath,
         DefaultParameters = PuloniaTaskCommonSettings.CreateDefaults("pathing"),

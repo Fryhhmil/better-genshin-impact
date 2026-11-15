@@ -297,6 +297,12 @@
                 </combat:CombatStrategyPicker>
                 <ComboBox ItemsSource="{Binding Choices, Mode=OneWay}"
                           SelectedItem="{Binding SelectedChoice, Mode=TwoWay}">
+                    <!-- 选项可能是保存的中文 Key，按界面语言展示，不改变保存值 -->
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{i18n:TBinding}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
                     <ComboBox.Style>
                         <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
                             <Setter Property="Visibility" Value="Collapsed" />
