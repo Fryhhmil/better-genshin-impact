@@ -1041,6 +1041,8 @@ namespace BetterGenshinImpact.ViewModel
             _mapLabelItemsCts?.Dispose();
             _mapLabelItemsCts = new CancellationTokenSource();
             var ct = _mapLabelItemsCts.Token;
+            // 后台加载大类点位，统计“已标记/总数”
+            _ = LoadCategoryMarkedCountsAsync(category);
             return PopulateRightListAsync(loadVersion, category, searchText, ct);
         }
 
@@ -1383,6 +1385,8 @@ namespace BetterGenshinImpact.ViewModel
             OnPropertyChanged(nameof(HasMapPoints));
             OnPropertyChanged(nameof(HasHiddenMapPoints));
             OnPropertyChanged(nameof(MapPointVisibilitySummary));
+            // 标记变化后同步分类网格的“已标记/总数”
+            RefreshMapLabelMarkedCounts();
         }
     }
 
@@ -1417,6 +1421,18 @@ namespace BetterGenshinImpact.ViewModel
         /// 是否已选中（正在地图上显示），网格中高亮显示
         /// </summary>
         [ObservableProperty] private bool _isSelected;
+
+        /// <summary>
+        /// 该分类下已标记的点位数量（分类点位加载后统计）
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PointCountText))]
+        private int _markedCount;
+
+        /// <summary>
+        /// 网格中显示的数量：没有标记时显示总数，有标记时显示“已标记/总数”
+        /// </summary>
+        public string PointCountText => MarkedCount > 0 ? $"{MarkedCount}/{PointCount}" : PointCount.ToString();
 
         public MapLabelItemVm(MaskMapPointLabel item)
         {

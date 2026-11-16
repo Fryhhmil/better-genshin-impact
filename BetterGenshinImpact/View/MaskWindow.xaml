@@ -1425,7 +1425,7 @@
                                                                                        HorizontalAlignment="Right"
                                                                                        TextAlignment="Right"
                                                                                        Foreground="{ui:ThemeResource TextFillColorSecondaryBrush}"
-                                                                                       Text="{Binding PointCount}" />
+                                                                                       Text="{Binding PointCountText, Mode=OneWay}" />
 
                                                                             <!--  名称最多两行，超出部分省略；完整名称见按钮提示  -->
                                                                             <TextBlock VerticalAlignment="Center"
