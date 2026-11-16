@@ -1116,6 +1116,8 @@
                                             <ui:Button.Style>
                                                 <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
                                                     <Setter Property="Appearance" Value="Transparent" />
+                                                    <Setter Property="MouseOverBackground" Value="#1A000000" />
+                                                    <Setter Property="PressedBackground" Value="#33000000" />
                                                     <Setter Property="Icon" Value="{ui:SymbolIcon Eye24}" />
                                                     <Setter Property="ToolTip" Value="{i18n:T 临时隐藏全部标点}" />
                                                     <Style.Triggers>
@@ -1243,10 +1245,14 @@
                                                     <ui:Button.Style>
                                                         <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
                                                             <Setter Property="Background" Value="#FF2B2F37" />
+                                                            <Setter Property="MouseOverBackground" Value="#FF3A3F4A" />
+                                                            <Setter Property="PressedBackground" Value="#FF24272E" />
                                                             <Setter Property="ToolTip" Value="{i18n:T 隐藏已标记的标点}" />
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding Config.MapMaskConfig.HideMarkedPoints, Mode=OneWay}" Value="True">
                                                                     <Setter Property="Background" Value="#FFB08A45" />
+                                                                    <Setter Property="MouseOverBackground" Value="#FFC29A52" />
+                                                                    <Setter Property="PressedBackground" Value="#FF9A783B" />
                                                                     <Setter Property="ToolTip" Value="{i18n:T 显示已标记的标点}" />
                                                                 </DataTrigger>
                                                             </Style.Triggers>
@@ -1378,7 +1384,7 @@
                                                             </ItemsControl.ItemsPanel>
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
-                                                                    <Button Width="190"
+                                                                    <ui:Button Width="190"
                                                                             Height="54"
                                                                             ToolTip="{Binding Name}"
                                                                             Margin="0,0,8,8"
@@ -1389,20 +1395,29 @@
                                                                             Command="{Binding DataContext.SelectMapLabelItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                                             CommandParameter="{Binding}">
                                                                         <!--  已选中（正在地图上显示）的分类用蓝色边框和底色高亮  -->
-                                                                        <Button.Style>
-                                                                            <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                                        <!--  悬停/按下颜色：WPF-UI 默认会改成灰色，这里按当前状态给出更亮/更暗的同色系  -->
+                                                                        <ui:Button.Style>
+                                                                            <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
                                                                                 <Setter Property="Background" Value="#B22C323C" />
                                                                                 <Setter Property="BorderBrush" Value="#403A424F" />
                                                                                 <Setter Property="BorderThickness" Value="1" />
+                                                                                <Setter Property="MouseOverBackground" Value="#CC3A424F" />
+                                                                                <Setter Property="MouseOverBorderBrush" Value="#806B7586" />
+                                                                                <Setter Property="PressedBackground" Value="#CC232831" />
+                                                                                <Setter Property="PressedBorderBrush" Value="#806B7586" />
                                                                                 <Style.Triggers>
                                                                                     <DataTrigger Binding="{Binding IsSelected, Mode=OneWay}" Value="True">
                                                                                         <Setter Property="Background" Value="#CC1F4E7A" />
                                                                                         <Setter Property="BorderBrush" Value="#FF4AA3FF" />
                                                                                         <Setter Property="BorderThickness" Value="2" />
+                                                                                        <Setter Property="MouseOverBackground" Value="#DD2A5F91" />
+                                                                                        <Setter Property="MouseOverBorderBrush" Value="#FF4AA3FF" />
+                                                                                        <Setter Property="PressedBackground" Value="#CC1A4268" />
+                                                                                        <Setter Property="PressedBorderBrush" Value="#FF4AA3FF" />
                                                                                     </DataTrigger>
                                                                                 </Style.Triggers>
                                                                             </Style>
-                                                                        </Button.Style>
+                                                                        </ui:Button.Style>
                                                                         <DockPanel HorizontalAlignment="Stretch"
                                                                                    VerticalAlignment="Center"
                                                                                    LastChildFill="True">
@@ -1439,7 +1454,7 @@
                                                                                        LineStackingStrategy="BlockLineHeight"
                                                                                        TextTrimming="CharacterEllipsis" />
                                                                         </DockPanel>
-                                                                    </Button>
+                                                                    </ui:Button>
                                                                 </DataTemplate>
                                                             </ItemsControl.ItemTemplate>
                                                         </ItemsControl>
