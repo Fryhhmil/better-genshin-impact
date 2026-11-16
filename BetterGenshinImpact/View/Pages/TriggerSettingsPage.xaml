@@ -1436,6 +1436,31 @@
                                      Margin="0,0,8,0"
                                      IsChecked="{Binding Config.MapMaskConfig.MiniMapMaskEnabled, Mode=TwoWay}" />
                 </Grid>
+                <Grid Margin="16,0,16,16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock Grid.Row="0"
+                                  Grid.Column="0"
+                                  FontTypography="Body"
+                                  Text="{i18n:T 隐藏已标记的标点}"
+                                  TextWrapping="Wrap" />
+                    <ui:TextBlock Grid.Row="1"
+                                  Grid.Column="0"
+                                  Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}"
+                                  Text="{i18n:T 已标记的标点不再半透明显示，地图更简洁；不会修改标记}"
+                                  TextWrapping="Wrap" />
+                    <ui:ToggleSwitch Grid.Row="0"
+                                     Grid.RowSpan="2"
+                                     Grid.Column="1"
+                                     Margin="0,0,8,0"
+                                     IsChecked="{Binding Config.MapMaskConfig.HideMarkedPoints, Mode=TwoWay}" />
+                </Grid>
             </StackPanel>
         </ui:CardExpander>
         

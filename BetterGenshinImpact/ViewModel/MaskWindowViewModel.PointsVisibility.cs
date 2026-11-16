@@ -58,5 +58,14 @@ namespace BetterGenshinImpact.ViewModel
                 PointInfoPopup.Close();
             }
         }
+
+        /// <summary>
+        /// 切换“隐藏已标记的标点”（保存到配置，重启后保留）
+        /// </summary>
+        [RelayCommand]
+        private void ToggleHideMarkedPoints()
+        {
+            Config.MapMaskConfig.HideMarkedPoints = !Config.MapMaskConfig.HideMarkedPoints;
+        }
     }
 }

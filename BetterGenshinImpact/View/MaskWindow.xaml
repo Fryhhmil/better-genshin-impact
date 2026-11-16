@@ -127,6 +127,7 @@
                 <controls:MiniMapPointsCanvas Visibility="{Binding ShowMiniMapPoints, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                               PointsSource="{Binding MapPoints}"
                                               LabelsSource="{Binding MapPointLabels}"
+                                              HideMarkedPoints="{Binding Config.MapMaskConfig.HideMarkedPoints, Mode=OneWay}"
                                               Viewport="{Binding MiniMapViewport}"
                                               IsHitTestVisible="False">
                     <Canvas.Left>
@@ -711,6 +712,7 @@
                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                    PointsSource="{Binding MapPoints}"
                                    LabelsSource="{Binding MapPointLabels}"
+                                   HideMarkedPoints="{Binding Config.MapMaskConfig.HideMarkedPoints, Mode=OneWay}"
                                    Viewport="{Binding BigMapViewport}"
                                    PointClickCommand="{Binding PointClickCommand}"
                                    PointRightClickCommand="{Binding PointRightClickCommand}"
@@ -1230,6 +1232,27 @@
                                                            ToolTip="{i18n:T 全部显示}"
                                                            IsEnabled="{Binding HasHiddenMapPoints}"
                                                            Command="{Binding ShowAllMapPointsCommand}" />
+                                                <!--  隐藏已标记的标点：开启时按钮高亮，已标记的点位不再半透明显示  -->
+                                                <ui:Button Width="32"
+                                                           Height="32"
+                                                           Margin="0,0,6,0"
+                                                           Foreground="White"
+                                                           Cursor="Hand"
+                                                           Icon="{ui:SymbolIcon CheckmarkCircle24}"
+                                                           Command="{Binding ToggleHideMarkedPointsCommand}">
+                                                    <ui:Button.Style>
+                                                        <Style TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+                                                            <Setter Property="Background" Value="#FF2B2F37" />
+                                                            <Setter Property="ToolTip" Value="{i18n:T 隐藏已标记的标点}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Config.MapMaskConfig.HideMarkedPoints, Mode=OneWay}" Value="True">
+                                                                    <Setter Property="Background" Value="#FFB08A45" />
+                                                                    <Setter Property="ToolTip" Value="{i18n:T 显示已标记的标点}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ui:Button.Style>
+                                                </ui:Button>
                                                 <ui:Button
                                                            Width="32"
                                                            Height="32"
