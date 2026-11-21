@@ -905,9 +905,11 @@
                                             <ContentPresenter Grid.Column="0"
                                                               Content="{Binding Left, Mode=OneWay}"
                                                               ContentTemplate="{StaticResource MapLabelCardTemplate}" />
+                                            <!--  奇数个类型时最后一行右列为空：隐藏，否则会显示一张空卡片  -->
                                             <ContentPresenter Grid.Column="1"
                                                               Content="{Binding Right, Mode=OneWay}"
-                                                              ContentTemplate="{StaticResource MapLabelCardTemplate}" />
+                                                              ContentTemplate="{StaticResource MapLabelCardTemplate}"
+                                                              Visibility="{Binding HasRight, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

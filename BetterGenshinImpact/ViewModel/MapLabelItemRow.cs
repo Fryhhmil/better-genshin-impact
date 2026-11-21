@@ -10,6 +10,12 @@ namespace BetterGenshinImpact.ViewModel;
 public sealed record MapLabelItemRow(MapLabelItemVm Left, MapLabelItemVm? Right)
 {
     /// <summary>
+    /// 右列是否有类型。没有时必须隐藏右列：ContentPresenter 的内容为空时仍会套用卡片模板，
+    /// 会显示一张继承了整行数据上下文的空卡片
+    /// </summary>
+    public bool HasRight => Right != null;
+
+    /// <summary>
     /// 把类型列表按两列分行
     /// </summary>
     public static List<MapLabelItemRow> Split(IReadOnlyList<MapLabelItemVm> items)
