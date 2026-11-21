@@ -91,11 +91,18 @@
                     </StackPanel.LayoutTransform>
 
             <!--  ==================== 点位面板 ====================  -->
-            <Border VerticalAlignment="Bottom"
-                    Width="680"
+            <Grid VerticalAlignment="Bottom"
+                  Visibility="{Binding IsMapPointPickerOpen, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <!--  阴影单独一层且不含内容：只在尺寸变化时绘制，避免面板内容每次变化都重新计算阴影效果  -->
+            <Border Width="680"
                     Height="540"
-                    Style="{StaticResource MapMenu.GlassBorder}"
-                    Visibility="{Binding IsMapPointPickerOpen, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    Background="{StaticResource MapMenu.PanelBackground}"
+                    CornerRadius="14"
+                    Effect="{StaticResource MapMenu.PanelShadow}"
+                    IsHitTestVisible="False" />
+            <Border Width="680"
+                    Height="540"
+                    Style="{StaticResource MapMenu.GlassBorder}">
                 <Grid ClipToBounds="True">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -996,6 +1003,7 @@
                     </Border>
                 </Grid>
             </Border>
+            </Grid>
 
             <!--  ==================== 已开启栏 ====================  -->
             <!--  面板打开时在面板右侧，收起时下移到圆形按钮上方  -->

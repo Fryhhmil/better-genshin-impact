@@ -165,10 +165,13 @@ namespace BetterGenshinImpact.ViewModel
                 return;
             }
 
-            foreach (var item in toAdd)
+            BatchUpdateSelectedMapLabelItems(selected =>
             {
-                SelectedMapLabelItems.Add(item);
-            }
+                foreach (var item in toAdd)
+                {
+                    selected.Add(item);
+                }
+            });
 
             SaveSelectedMapLabelItemsToStorage();
             StartRefreshSelectedMapPoints();
@@ -190,10 +193,13 @@ namespace BetterGenshinImpact.ViewModel
                 return;
             }
 
-            foreach (var item in toRemove)
+            BatchUpdateSelectedMapLabelItems(selected =>
             {
-                SelectedMapLabelItems.Remove(item);
-            }
+                foreach (var item in toRemove)
+                {
+                    selected.Remove(item);
+                }
+            });
 
             SaveSelectedMapLabelItemsToStorage();
             StartRefreshSelectedMapPoints();

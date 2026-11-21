@@ -40,7 +40,6 @@
         <Setter Property="BorderBrush" Value="{StaticResource MapMenu.PanelBorder}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="14" />
-        <Setter Property="Effect" Value="{StaticResource MapMenu.PanelShadow}" />
         <Setter Property="TextElement.Foreground" Value="{StaticResource MapMenu.TextPrimary}" />
     </Style>
 

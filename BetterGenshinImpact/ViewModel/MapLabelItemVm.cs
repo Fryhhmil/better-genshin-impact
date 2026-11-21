@@ -43,6 +43,16 @@ public partial class MapLabelItemVm : ObservableObject
     public Brush TintBackgroundBrush { get; }
 
     /// <summary>
+    /// 规范化（去重音、小写）后的名称，搜索时直接比较，避免每次输入都重新处理
+    /// </summary>
+    public string NormalizedName { get; }
+
+    /// <summary>
+    /// 规范化后的所属大类名称
+    /// </summary>
+    public string NormalizedCategoryName { get; }
+
+    /// <summary>
     /// 没有点位的类型不可开启
     /// </summary>
     public bool IsEmpty => PointCount == 0;
@@ -81,6 +91,8 @@ public partial class MapLabelItemVm : ObservableObject
         PointCount = item.PointCount;
         ParentId = item.ParentId;
         CategoryName = categoryName ?? string.Empty;
+        NormalizedName = MapLabelSearch.Normalize(Name);
+        NormalizedCategoryName = MapLabelSearch.Normalize(CategoryName);
         TintBrush = tint ?? DefaultTint.Tint;
         TintBackgroundBrush = tintBackground ?? DefaultTint.Background;
     }

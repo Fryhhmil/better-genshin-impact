@@ -49,7 +49,8 @@ namespace BetterGenshinImpact.ViewModel
             try
             {
                 var labels = category.Items.Select(x => x.ToModel()).ToList();
-                var result = await _maskMapPointService.GetPointsAsync(labels, CancellationToken.None);
+                // 整个大类的点位可达数千个，坐标换算放到后台线程，避免切换大类时界面卡顿
+                var result = await Task.Run(() => _maskMapPointService.GetPointsAsync(labels, CancellationToken.None));
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     if (version != _markedCountLoadVersion)

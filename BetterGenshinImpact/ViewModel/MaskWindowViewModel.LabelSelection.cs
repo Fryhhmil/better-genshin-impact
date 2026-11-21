@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
@@ -9,12 +11,17 @@ namespace BetterGenshinImpact.ViewModel
     public partial class MaskWindowViewModel
     {
         /// <summary>
+        /// 批量修改已选列表时暂停逐项刷新，结束后统一刷新一次
+        /// </summary>
+        private bool _isBatchUpdatingSelection;
+
+        /// <summary>
         /// 订阅当前的网格列表与已选列表
         /// </summary>
         private void InitMapLabelSelectionHighlight()
         {
-            MapLabelItems.CollectionChanged += OnMapLabelSelectionSourceChanged;
-            SelectedMapLabelItems.CollectionChanged += OnMapLabelSelectionSourceChanged;
+            MapLabelItems.CollectionChanged += OnMapLabelItemsCollectionChanged;
+            SelectedMapLabelItems.CollectionChanged += OnSelectedMapLabelItemsCollectionChanged;
             RefreshMapLabelSelectionHighlight();
         }
 
@@ -25,11 +32,11 @@ namespace BetterGenshinImpact.ViewModel
         {
             if (oldValue != null)
             {
-                oldValue.CollectionChanged -= OnMapLabelSelectionSourceChanged;
+                oldValue.CollectionChanged -= OnMapLabelItemsCollectionChanged;
             }
 
-            newValue.CollectionChanged += OnMapLabelSelectionSourceChanged;
-            RefreshMapLabelSelectionHighlight();
+            newValue.CollectionChanged += OnMapLabelItemsCollectionChanged;
+            RefreshMapLabelGridState();
         }
 
         /// <summary>
@@ -39,23 +46,61 @@ namespace BetterGenshinImpact.ViewModel
         {
             if (oldValue != null)
             {
-                oldValue.CollectionChanged -= OnMapLabelSelectionSourceChanged;
+                oldValue.CollectionChanged -= OnSelectedMapLabelItemsCollectionChanged;
             }
 
-            newValue.CollectionChanged += OnMapLabelSelectionSourceChanged;
+            newValue.CollectionChanged += OnSelectedMapLabelItemsCollectionChanged;
             RefreshMapLabelSelectionHighlight();
         }
 
         /// <summary>
-        /// 任一列表内容变化时重新计算高亮
+        /// 网格内容变化：只需刷新网格项的高亮与标题，不涉及大类徽标与方案
         /// </summary>
-        private void OnMapLabelSelectionSourceChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private void OnMapLabelItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            RefreshMapLabelSelectionHighlight();
+            RefreshMapLabelGridState();
         }
 
         /// <summary>
-        /// 按已选列表刷新网格项的选中状态
+        /// 已选列表变化：批量修改期间跳过，结束后统一刷新
+        /// </summary>
+        private void OnSelectedMapLabelItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (!_isBatchUpdatingSelection)
+            {
+                RefreshMapLabelSelectionHighlight();
+            }
+        }
+
+        /// <summary>
+        /// 批量修改已选列表（全部开启、应用方案等），只在结束后刷新一次
+        /// </summary>
+        /// <param name="update">修改操作</param>
+        private void BatchUpdateSelectedMapLabelItems(Action<ObservableCollection<MapLabelItemVm>> update)
+        {
+            _isBatchUpdatingSelection = true;
+            try
+            {
+                update(SelectedMapLabelItems);
+            }
+            finally
+            {
+                _isBatchUpdatingSelection = false;
+                RefreshMapLabelSelectionHighlight();
+            }
+        }
+
+        /// <summary>
+        /// 网格项高亮、标题与批量按钮状态
+        /// </summary>
+        private void RefreshMapLabelGridState()
+        {
+            MapLabelSelection.Apply(MapLabelItems, SelectedMapLabelItems);
+            NotifyMapLabelGridHeaderChanged();
+        }
+
+        /// <summary>
+        /// 按已选列表刷新网格高亮、大类徽标、已开启栏与方案状态
         /// </summary>
         private void RefreshMapLabelSelectionHighlight()
         {

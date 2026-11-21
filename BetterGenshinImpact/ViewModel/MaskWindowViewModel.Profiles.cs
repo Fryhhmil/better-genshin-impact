@@ -272,28 +272,33 @@ namespace BetterGenshinImpact.ViewModel
         private async Task ReplaceSelectedMapLabelItemsAsync(IEnumerable<MapMaskSelectedLabelState> items)
         {
             var added = new List<MapLabelItemVm>();
-            SelectedMapLabelItems.Clear();
-            foreach (var saved in items)
+            // 批量替换，只在结束后刷新一次高亮、徽标与方案状态
+            BatchUpdateSelectedMapLabelItems(selected =>
             {
-                if (SelectedMapLabelItems.Any(x => x.Id == saved.Id))
+                selected.Clear();
+                var ids = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var saved in items)
                 {
-                    continue;
-                }
+                    if (!ids.Add(saved.Id))
+                    {
+                        continue;
+                    }
 
-                // 优先使用大类树中的实例，保留大类颜色与已加载的图标
-                var item = FindMapLabelItem(saved.Id)
-                           ?? new MapLabelItemVm(new MaskMapPointLabel
-                           {
-                               LabelId = saved.Id,
-                               LabelIds = saved.LabelIds ?? [],
-                               ParentId = saved.ParentId,
-                               Name = saved.Name,
-                               IconUrl = saved.IconUrl,
-                               PointCount = saved.PointCount
-                           });
-                SelectedMapLabelItems.Add(item);
-                added.Add(item);
-            }
+                    // 优先使用大类树中的实例，保留大类颜色与已加载的图标
+                    var item = FindMapLabelItem(saved.Id)
+                               ?? new MapLabelItemVm(new MaskMapPointLabel
+                               {
+                                   LabelId = saved.Id,
+                                   LabelIds = saved.LabelIds ?? [],
+                                   ParentId = saved.ParentId,
+                                   Name = saved.Name,
+                                   IconUrl = saved.IconUrl,
+                                   PointCount = saved.PointCount
+                               });
+                    selected.Add(item);
+                    added.Add(item);
+                }
+            });
 
             SaveSelectedMapLabelItemsToStorage();
             StartRefreshSelectedMapPoints();
