@@ -149,6 +149,7 @@ public sealed class MapPointMenuViewTests
         public object Config { get; } = new { MapMaskConfig = new MapMaskConfig { HideMarkedPoints = true } };
         public ObservableCollection<MapLabelCategoryVm> MapLabelCategories { get; }
         public ObservableCollection<MapLabelItemVm> MapLabelItems { get; }
+        public IReadOnlyList<MapLabelItemRow> MapLabelItemRows => MapLabelItemRow.Split(MapLabelItems);
         public ObservableCollection<MapLabelItemVm> SelectedMapLabelItems { get; }
         public ObservableCollection<MapProfileVm> MapProfiles { get; }
         public IReadOnlyList<MaskWindowViewModel.MapPointApiProviderOption> MapPointApiProviderOptions { get; } =

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace BetterGenshinImpact.ViewModel
 {
@@ -96,8 +97,15 @@ namespace BetterGenshinImpact.ViewModel
         private void RefreshMapLabelGridState()
         {
             MapLabelSelection.Apply(MapLabelItems, SelectedMapLabelItems);
+            MapLabelItemRows = MapLabelItemRow.Split(MapLabelItems);
             NotifyMapLabelGridHeaderChanged();
         }
+
+        /// <summary>
+        /// 网格按两列分好的行，供虚拟化列表显示
+        /// </summary>
+        [ObservableProperty]
+        private IReadOnlyList<MapLabelItemRow> _mapLabelItemRows = [];
 
         /// <summary>
         /// 按已选列表刷新网格高亮、大类徽标、已开启栏与方案状态

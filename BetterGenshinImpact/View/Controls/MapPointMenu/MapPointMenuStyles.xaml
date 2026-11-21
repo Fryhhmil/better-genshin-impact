@@ -242,16 +242,22 @@
         <Setter Property="CornerRadius" Value="11" />
         <Setter Property="Background" Value="#14FFFFFF" />
         <Style.Triggers>
-            <EventTrigger RoutedEvent="Loaded">
-                <BeginStoryboard>
-                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                         From="0.35"
-                                         To="1"
-                                         Duration="0:0:0.55" />
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
+            <!--  只在可见时播放动画，隐藏后停止，避免动画时钟一直运行  -->
+            <Trigger Property="IsVisible" Value="True">
+                <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="SkeletonPulse">
+                        <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                             From="0.35"
+                                             To="1"
+                                             Duration="0:0:0.55" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="SkeletonPulse" />
+                </Trigger.ExitActions>
+            </Trigger>
         </Style.Triggers>
     </Style>
 

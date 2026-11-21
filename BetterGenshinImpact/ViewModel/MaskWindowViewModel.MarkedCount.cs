@@ -27,6 +27,12 @@ namespace BetterGenshinImpact.ViewModel
         private IReadOnlyList<MaskMapPoint> _markedCountPoints = Array.Empty<MaskMapPoint>();
 
         /// <summary>
+        /// 每个点位的标记键（与 <see cref="_markedCountPoints"/> 一一对应）。
+        /// 在后台一次算好，之后每次重新统计只需查集合，不再逐个拼接字符串
+        /// </summary>
+        private Dictionary<MaskMapPoint, string> _markedCountPointKeys = new(ReferenceEqualityComparer.Instance);
+
+        /// <summary>
         /// 加载版本号，切换大类后丢弃旧的加载结果
         /// </summary>
         private int _markedCountLoadVersion;
@@ -45,12 +51,25 @@ namespace BetterGenshinImpact.ViewModel
             var version = Interlocked.Increment(ref _markedCountLoadVersion);
             _markedCountCategory = category;
             _markedCountPoints = Array.Empty<MaskMapPoint>();
+            _markedCountPointKeys = new Dictionary<MaskMapPoint, string>(ReferenceEqualityComparer.Instance);
 
             try
             {
                 var labels = category.Items.Select(x => x.ToModel()).ToList();
-                // 整个大类的点位可达数千个，坐标换算放到后台线程，避免切换大类时界面卡顿
-                var result = await Task.Run(() => _maskMapPointService.GetPointsAsync(labels, CancellationToken.None));
+                // 整个大类的点位可达数千个：坐标换算与标记键计算都放到后台线程，避免切换大类时界面卡顿
+                var (points, keys) = await Task.Run(async () =>
+                {
+                    var result = await _maskMapPointService.GetPointsAsync(labels, CancellationToken.None);
+                    var list = result.Points.ToList();
+                    var map = new Dictionary<MaskMapPoint, string>(list.Count, ReferenceEqualityComparer.Instance);
+                    foreach (var point in list)
+                    {
+                        map[point] = GetMapPointKey(point);
+                    }
+
+                    return (list, map);
+                });
+
                 await Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     if (version != _markedCountLoadVersion)
@@ -58,7 +77,8 @@ namespace BetterGenshinImpact.ViewModel
                         return;
                     }
 
-                    _markedCountPoints = result.Points.ToList();
+                    _markedCountPoints = points;
+                    _markedCountPointKeys = keys;
                     RefreshMapLabelMarkedCounts();
                 }, DispatcherPriority.Background);
             }
@@ -79,12 +99,14 @@ namespace BetterGenshinImpact.ViewModel
         /// </summary>
         private void RefreshMapLabelMarkedCounts()
         {
-            if (_markedCountCategory == null)
+            if (_markedCountCategory == null || _markedCountPoints.Count == 0)
             {
                 return;
             }
 
-            MapLabelMarkedCount.Apply(_markedCountCategory.Items, _markedCountPoints, IsMapPointHidden);
+            var keys = _markedCountPointKeys;
+            MapLabelMarkedCount.Apply(_markedCountCategory.Items, _markedCountPoints,
+                p => keys.TryGetValue(p, out var key) && _hiddenMapPointIds.Contains(key));
         }
     }
 }

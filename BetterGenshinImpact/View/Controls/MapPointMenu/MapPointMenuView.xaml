@@ -19,6 +19,129 @@
                 <ResourceDictionary Source="MapPointMenuStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converters:ObjectEqualsMultiConverter x:Key="ObjectEqualsMultiConverter" />
+
+            <!--  类型卡片模板：网格的每一行用两个 ContentPresenter 套用此模板  -->
+            <DataTemplate x:Key="MapLabelCardTemplate">
+                <Button Margin="4"
+                        HorizontalAlignment="Stretch"
+                        Command="{Binding DataContext.SelectMapLabelItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}"
+                        Cursor="Hand"
+                        FocusVisualStyle="{x:Null}"
+                        ToolTip="{Binding Name, Mode=OneWay}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Style.Triggers>
+                                <!--  没有点位的类型不可开启  -->
+                                <DataTrigger Binding="{Binding IsEmpty, Mode=OneWay}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Card"
+                                    MinHeight="58"
+                                    Padding="9,8,12,8"
+                                    Background="#0AFFFFFF"
+                                    BorderBrush="#14FFFFFF"
+                                    BorderThickness="1"
+                                    CornerRadius="11">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="38" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!--  图标：大类底色 + 官方图标；开启时右下角显示勾  -->
+                                    <Grid Grid.Column="0"
+                                          Width="38"
+                                          Height="38"
+                                          VerticalAlignment="Center">
+                                        <Ellipse Fill="{Binding TintBackgroundBrush, Mode=OneWay}" />
+                                        <Image Width="30"
+                                               Height="30"
+                                               Source="{Binding IconImage, Mode=OneWay}"
+                                               Stretch="Uniform">
+                                            <Image.Clip>
+                                                <EllipseGeometry Center="15,15" RadiusX="15" RadiusY="15" />
+                                            </Image.Clip>
+                                        </Image>
+                                        <Border Width="18"
+                                                Height="18"
+                                                Margin="0,0,-4,-4"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Bottom"
+                                                Background="{StaticResource MapMenu.Accent}"
+                                                BorderBrush="#FF1A1D24"
+                                                BorderThickness="2"
+                                                CornerRadius="9"
+                                                Visibility="{Binding IsSelected, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <!--  用路径绘制勾号，比字体图标控件轻量  -->
+                            <Path Width="9"
+                                  Height="7"
+                                  Data="M0,3.5 L3.2,6.5 L9,0.5"
+                                  Stretch="Fill"
+                                  Stroke="{StaticResource MapMenu.OnAccent}"
+                                  StrokeEndLineCap="Round"
+                                  StrokeLineJoin="Round"
+                                  StrokeStartLineCap="Round"
+                                  StrokeThickness="2" />
+                                        </Border>
+                                    </Grid>
+
+                                    <StackPanel Grid.Column="1"
+                                                Margin="10,0,6,0"
+                                                VerticalAlignment="Center">
+                                        <!--  名称最多两行  -->
+                                        <TextBlock MaxHeight="33"
+                                                   FontSize="13"
+                                                   Foreground="{StaticResource MapMenu.TextPrimary}"
+                                                   LineHeight="16.5"
+                                                   LineStackingStrategy="BlockLineHeight"
+                                                   Text="{Binding Name, Mode=OneWay}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   TextWrapping="Wrap" />
+                                        <!--  搜索结果中显示所属大类  -->
+                                        <TextBlock Margin="0,2,0,0"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource MapMenu.TextTertiary}"
+                                                   Text="{Binding CategoryName, Mode=OneWay}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Visibility="{Binding DataContext.IsMapLabelSearchActive, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    </StackPanel>
+
+                                    <TextBlock x:Name="CountText"
+                                               Grid.Column="2"
+                                               VerticalAlignment="Center"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource MapMenu.TextSecondary}"
+                                               Text="{Binding PointCountText, Mode=OneWay}"
+                                               Typography.NumeralAlignment="Tabular" />
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Card" Property="Background" Value="#14FFFFFF" />
+                                    <Setter TargetName="Card" Property="BorderBrush" Value="#2EFFFFFF" />
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsSelected, Mode=OneWay}" Value="True">
+                                    <Setter TargetName="Card" Property="Background" Value="#2B4AA3FF" />
+                                    <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource MapMenu.Accent}" />
+                                    <Setter TargetName="CountText" Property="Foreground" Value="#FFCFE6FF" />
+                                </DataTrigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="Card" Property="Opacity" Value="0.42" />
+                                    <Setter Property="Cursor" Value="Arrow" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -732,171 +855,81 @@
                                         ToolTip="{i18n:T 关闭下方列出的全部类型}" />
                             </Grid>
 
-                            <ScrollViewer Grid.Row="1"
-                                          Padding="10,0,8,12"
-                                          HorizontalScrollBarVisibility="Disabled"
-                                          VerticalScrollBarVisibility="Auto">
-                                <Grid>
-                                    <!--  加载占位  -->
-                                    <UniformGrid Columns="2"
-                                                 VerticalAlignment="Top"
-                                                 Visibility="{Binding IsMapLabelGridLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <Border Style="{StaticResource MapMenu.SkeletonCard}" />
-                                        <Border Style="{StaticResource MapMenu.SkeletonCard}" />
-                                        <Border Style="{StaticResource MapMenu.SkeletonCard}" />
-                                        <Border Style="{StaticResource MapMenu.SkeletonCard}" />
-                                        <Border Style="{StaticResource MapMenu.SkeletonCard}" />
-                                        <Border Style="{StaticResource MapMenu.SkeletonCard}" />
-                                        <Border Style="{StaticResource MapMenu.SkeletonCard}" />
-                                        <Border Style="{StaticResource MapMenu.SkeletonCard}" />
-                                    </UniformGrid>
+                            <!--  加载占位  -->
+                            <UniformGrid Grid.Row="1"
+                                         Margin="10,0,8,12"
+                                         VerticalAlignment="Top"
+                                         Columns="2"
+                                         Visibility="{Binding IsMapLabelGridLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Border Style="{StaticResource MapMenu.SkeletonCard}" />
+                                <Border Style="{StaticResource MapMenu.SkeletonCard}" />
+                                <Border Style="{StaticResource MapMenu.SkeletonCard}" />
+                                <Border Style="{StaticResource MapMenu.SkeletonCard}" />
+                                <Border Style="{StaticResource MapMenu.SkeletonCard}" />
+                                <Border Style="{StaticResource MapMenu.SkeletonCard}" />
+                                <Border Style="{StaticResource MapMenu.SkeletonCard}" />
+                                <Border Style="{StaticResource MapMenu.SkeletonCard}" />
+                            </UniformGrid>
 
-                                    <!--  类型卡片  -->
-                                    <ItemsControl ItemsSource="{Binding MapLabelItems}"
-                                                  Visibility="{Binding IsMapLabelGridLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibilityRevertConverter}}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <UniformGrid VerticalAlignment="Top" Columns="2" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Button Margin="4"
-                                                        HorizontalAlignment="Stretch"
-                                                        Command="{Binding DataContext.SelectMapLabelItemCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Cursor="Hand"
-                                                        FocusVisualStyle="{x:Null}"
-                                                        ToolTip="{Binding Name, Mode=OneWay}">
-                                                    <Button.Style>
-                                                        <Style TargetType="Button">
-                                                            <Style.Triggers>
-                                                                <!--  没有点位的类型不可开启  -->
-                                                                <DataTrigger Binding="{Binding IsEmpty, Mode=OneWay}" Value="True">
-                                                                    <Setter Property="IsEnabled" Value="False" />
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Button.Style>
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border x:Name="Card"
-                                                                    MinHeight="58"
-                                                                    Padding="9,8,12,8"
-                                                                    Background="#0AFFFFFF"
-                                                                    BorderBrush="#14FFFFFF"
-                                                                    BorderThickness="1"
-                                                                    CornerRadius="11">
-                                                                <Grid>
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="38" />
-                                                                        <ColumnDefinition Width="*" />
-                                                                        <ColumnDefinition Width="Auto" />
-                                                                    </Grid.ColumnDefinitions>
+                            <!--  类型卡片：按行虚拟化，只创建可见行；滚动时复用行容器  -->
+                            <ItemsControl Grid.Row="1"
+                                          ItemsSource="{Binding MapLabelItemRows, Mode=OneWay}"
+                                          ScrollViewer.CanContentScroll="True"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.ScrollUnit="Pixel"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          Visibility="{Binding IsMapLabelGridLoading, Mode=OneWay, Converter={StaticResource BooleanToVisibilityRevertConverter}}">
+                                <ItemsControl.Template>
+                                    <ControlTemplate TargetType="ItemsControl">
+                                        <ScrollViewer Padding="10,0,8,12"
+                                                      CanContentScroll="True"
+                                                      Focusable="False"
+                                                      HorizontalScrollBarVisibility="Disabled"
+                                                      VerticalScrollBarVisibility="Auto">
+                                            <ItemsPresenter />
+                                        </ScrollViewer>
+                                    </ControlTemplate>
+                                </ItemsControl.Template>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ContentPresenter Grid.Column="0"
+                                                              Content="{Binding Left, Mode=OneWay}"
+                                                              ContentTemplate="{StaticResource MapLabelCardTemplate}" />
+                                            <ContentPresenter Grid.Column="1"
+                                                              Content="{Binding Right, Mode=OneWay}"
+                                                              ContentTemplate="{StaticResource MapLabelCardTemplate}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
 
-                                                                    <!--  图标：大类底色 + 官方图标；开启时右下角显示勾  -->
-                                                                    <Grid Grid.Column="0"
-                                                                          Width="38"
-                                                                          Height="38"
-                                                                          VerticalAlignment="Center">
-                                                                        <Ellipse Fill="{Binding TintBackgroundBrush, Mode=OneWay}" />
-                                                                        <Image Width="30"
-                                                                               Height="30"
-                                                                               Source="{Binding IconImage, Mode=OneWay}"
-                                                                               Stretch="Uniform">
-                                                                            <Image.Clip>
-                                                                                <EllipseGeometry Center="15,15" RadiusX="15" RadiusY="15" />
-                                                                            </Image.Clip>
-                                                                        </Image>
-                                                                        <Border Width="18"
-                                                                                Height="18"
-                                                                                Margin="0,0,-4,-4"
-                                                                                HorizontalAlignment="Right"
-                                                                                VerticalAlignment="Bottom"
-                                                                                Background="{StaticResource MapMenu.Accent}"
-                                                                                BorderBrush="#FF1A1D24"
-                                                                                BorderThickness="2"
-                                                                                CornerRadius="9"
-                                                                                Visibility="{Binding IsSelected, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                                                            <ui:SymbolIcon HorizontalAlignment="Center"
-                                                                                           VerticalAlignment="Center"
-                                                                                           FontSize="10"
-                                                                                           FontWeight="Bold"
-                                                                                           Foreground="{StaticResource MapMenu.OnAccent}"
-                                                                                           Symbol="Checkmark16" />
-                                                                        </Border>
-                                                                    </Grid>
-
-                                                                    <StackPanel Grid.Column="1"
-                                                                                Margin="10,0,6,0"
-                                                                                VerticalAlignment="Center">
-                                                                        <!--  名称最多两行  -->
-                                                                        <TextBlock MaxHeight="33"
-                                                                                   FontSize="13"
-                                                                                   Foreground="{StaticResource MapMenu.TextPrimary}"
-                                                                                   LineHeight="16.5"
-                                                                                   LineStackingStrategy="BlockLineHeight"
-                                                                                   Text="{Binding Name, Mode=OneWay}"
-                                                                                   TextTrimming="CharacterEllipsis"
-                                                                                   TextWrapping="Wrap" />
-                                                                        <!--  搜索结果中显示所属大类  -->
-                                                                        <TextBlock Margin="0,2,0,0"
-                                                                                   FontSize="11"
-                                                                                   Foreground="{StaticResource MapMenu.TextTertiary}"
-                                                                                   Text="{Binding CategoryName, Mode=OneWay}"
-                                                                                   TextTrimming="CharacterEllipsis"
-                                                                                   Visibility="{Binding DataContext.IsMapLabelSearchActive, RelativeSource={RelativeSource AncestorType=UserControl}, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
-                                                                    </StackPanel>
-
-                                                                    <TextBlock x:Name="CountText"
-                                                                               Grid.Column="2"
-                                                                               VerticalAlignment="Center"
-                                                                               FontSize="13"
-                                                                               FontWeight="SemiBold"
-                                                                               Foreground="{StaticResource MapMenu.TextSecondary}"
-                                                                               Text="{Binding PointCountText, Mode=OneWay}"
-                                                                               Typography.NumeralAlignment="Tabular" />
-                                                                </Grid>
-                                                            </Border>
-                                                            <ControlTemplate.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter TargetName="Card" Property="Background" Value="#14FFFFFF" />
-                                                                    <Setter TargetName="Card" Property="BorderBrush" Value="#2EFFFFFF" />
-                                                                </Trigger>
-                                                                <DataTrigger Binding="{Binding IsSelected, Mode=OneWay}" Value="True">
-                                                                    <Setter TargetName="Card" Property="Background" Value="#2B4AA3FF" />
-                                                                    <Setter TargetName="Card" Property="BorderBrush" Value="{StaticResource MapMenu.Accent}" />
-                                                                    <Setter TargetName="CountText" Property="Foreground" Value="#FFCFE6FF" />
-                                                                </DataTrigger>
-                                                                <Trigger Property="IsEnabled" Value="False">
-                                                                    <Setter TargetName="Card" Property="Opacity" Value="0.42" />
-                                                                    <Setter Property="Cursor" Value="Arrow" />
-                                                                </Trigger>
-                                                            </ControlTemplate.Triggers>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-
-                                    <!--  搜索无结果  -->
-                                    <StackPanel Margin="12,40"
-                                                HorizontalAlignment="Center"
-                                                Visibility="{Binding ShowMapLabelNoResults, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                        <TextBlock HorizontalAlignment="Center"
-                                                   FontSize="13"
-                                                   Foreground="{StaticResource MapMenu.TextSecondary}"
-                                                   Text="{Binding MapLabelNoResultsText, Mode=OneWay}"
-                                                   TextAlignment="Center"
-                                                   TextWrapping="Wrap" />
-                                        <TextBlock Margin="0,4,0,0"
-                                                   HorizontalAlignment="Center"
-                                                   Style="{StaticResource MapMenu.CaptionText}"
-                                                   Text="{i18n:T 换个名称试试，或切换数据源。}" />
-                                    </StackPanel>
-                                </Grid>
-                            </ScrollViewer>
+                            <!--  搜索无结果  -->
+                            <StackPanel Grid.Row="1"
+                                        Margin="12,40"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Top"
+                                        Visibility="{Binding ShowMapLabelNoResults, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock HorizontalAlignment="Center"
+                                           FontSize="13"
+                                           Foreground="{StaticResource MapMenu.TextSecondary}"
+                                           Text="{Binding MapLabelNoResultsText, Mode=OneWay}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap" />
+                                <TextBlock Margin="0,4,0,0"
+                                           HorizontalAlignment="Center"
+                                           Style="{StaticResource MapMenu.CaptionText}"
+                                           Text="{i18n:T 换个名称试试，或切换数据源。}" />
+                            </StackPanel>
                         </Grid>
                     </Grid>
 
@@ -1067,8 +1100,28 @@
                             Margin="0,6"
                             Background="#1AFFFFFF"
                             DockPanel.Dock="Top" />
-                    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl Padding="0,6" ItemsSource="{Binding SelectedMapLabelItems}">
+                    <!--  已开启类型可能有上百个：虚拟化，只创建可见的圆形图标  -->
+                    <ItemsControl ItemsSource="{Binding SelectedMapLabelItems}"
+                                  ScrollViewer.CanContentScroll="True"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.ScrollUnit="Pixel"
+                                  VirtualizingPanel.VirtualizationMode="Recycling">
+                            <ItemsControl.Template>
+                                <ControlTemplate TargetType="ItemsControl">
+                                    <ScrollViewer Padding="0,6"
+                                                  CanContentScroll="True"
+                                                  Focusable="False"
+                                                  HorizontalScrollBarVisibility="Disabled"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </ControlTemplate>
+                            </ItemsControl.Template>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button Width="42"
@@ -1126,7 +1179,6 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </ScrollViewer>
                 </DockPanel>
             </Border>
 
