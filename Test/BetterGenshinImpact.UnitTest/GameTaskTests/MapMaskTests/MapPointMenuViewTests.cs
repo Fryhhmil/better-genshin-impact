@@ -34,6 +34,13 @@ public sealed class MapPointMenuViewTests
         Assert.True(buttons.Count > 15, $"按钮数量 {buttons.Count}");
         Assert.Contains(VisualChildren(view).OfType<CheckBox>(), x => x.IsChecked == true);
 
+        // 3 个类型（奇数）：最后一行右列为空，不能显示没有数据的空卡片
+        var cardTemplate = view.Resources["MapLabelCardTemplate"];
+        var cards = VisualChildren(view).OfType<ContentPresenter>().Where(x => ReferenceEquals(x.ContentTemplate, cardTemplate)).ToList();
+        Assert.Equal(4, cards.Count);
+        Assert.Equal(3, cards.Count(IsShown));
+        Assert.DoesNotContain(cards, x => IsShown(x) && x.Content == null);
+
         // 切换到搜索、确认与新建方案状态后重新布局
         context.IsMapLabelSearchActive = true;
         context.IsMarkAllConfirmPending = true;
@@ -42,6 +49,22 @@ public sealed class MapPointMenuViewTests
         Layout(view, 1600, 900);
         return Task.CompletedTask;
     });
+
+    /// <summary>
+    /// 未挂到窗口时 IsVisible 恒为 false，这里沿可视树检查各级 Visibility
+    /// </summary>
+    private static bool IsShown(DependencyObject element)
+    {
+        for (var current = element; current != null; current = VisualTreeHelper.GetParent(current))
+        {
+            if (current is UIElement { Visibility: not Visibility.Visible })
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private static void Layout(FrameworkElement element, double width, double height)
     {

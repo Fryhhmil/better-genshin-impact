@@ -905,11 +905,13 @@
                                             <ContentPresenter Grid.Column="0"
                                                               Content="{Binding Left, Mode=OneWay}"
                                                               ContentTemplate="{StaticResource MapLabelCardTemplate}" />
-                                            <!--  奇数个类型时最后一行右列为空：隐藏，否则会显示一张空卡片  -->
-                                            <ContentPresenter Grid.Column="1"
-                                                              Content="{Binding Right, Mode=OneWay}"
-                                                              ContentTemplate="{StaticResource MapLabelCardTemplate}"
-                                                              Visibility="{Binding HasRight, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                            <!--  奇数个类型时最后一行右列为空，必须隐藏，否则会显示一张空卡片。
+                                                  可见性放在外层 Border 上：ContentPresenter 的 DataContext 是它的 Content（为空），在它自身上绑定 HasRight 不会生效  -->
+                                            <Border Grid.Column="1"
+                                                    Visibility="{Binding HasRight, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ContentPresenter Content="{Binding Right, Mode=OneWay}"
+                                                                  ContentTemplate="{StaticResource MapLabelCardTemplate}" />
+                                            </Border>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
