@@ -569,7 +569,8 @@ public partial class MultiSelectComboBox : UserControl
 
     private static string GetDisplayText(object value)
     {
-        return value.ToString() ?? string.Empty;
+        // 选项通常是中文数据值（采集物、角色名等），展示时按界面语言翻译；没有译文时原样显示
+        return I18nService.Instance.Translate(value.ToString() ?? string.Empty);
     }
 
     private sealed class MultiSelectItem : INotifyPropertyChanged

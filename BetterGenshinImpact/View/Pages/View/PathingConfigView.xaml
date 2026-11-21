@@ -26,6 +26,12 @@
             <b:InvokeCommandAction Command="{Binding ClosingCommand}" PassEventArgsToCommand="True" />
         </b:EventTrigger>
     </b:Interaction.Triggers>
+    <ui:FluentWindow.Resources>
+        <!--  条件选项保存的是中文数据值，只在展示时翻译  -->
+        <DataTemplate x:Key="TranslatedTextTemplate">
+            <TextBlock Text="{i18n:TBinding}" />
+        </DataTemplate>
+    </ui:FluentWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -66,6 +72,7 @@
                                                   Margin="0,0,10,5"
                                                   HorizontalAlignment="Left"
                                                   ItemsSource="{Binding Source={x:Static local:ConditionDefinitions.PartySubjects}}"
+                                                  ItemTemplate="{StaticResource TranslatedTextTemplate}"
                                                   SelectedItem="{Binding Subject, Mode=TwoWay}" />
 
                                         <!--  包含  -->
@@ -73,6 +80,7 @@
                                                   Margin="0,0,10,5"
                                                   HorizontalAlignment="Left"
                                                   ItemsSource="{Binding Definition.PredicateOptions}"
+                                                  ItemTemplate="{StaticResource TranslatedTextTemplate}"
                                                   SelectedItem="{Binding Predicate, Mode=TwoWay}" />
 
                                         <!--  搜索输入框  -->
@@ -133,6 +141,7 @@
                                                   Margin="0,0,10,5"
                                                   HorizontalAlignment="Left"
                                                   ItemsSource="{Binding Source={x:Static local:ConditionDefinitions.AvatarSubjects}}"
+                                                  ItemTemplate="{StaticResource TranslatedTextTemplate}"
                                                   SelectedItem="{Binding Subject, Mode=TwoWay}" />
 
                                         <!--  包含  -->
@@ -140,6 +149,7 @@
                                                   Margin="0,0,10,5"
                                                   HorizontalAlignment="Left"
                                                   ItemsSource="{Binding Definition.PredicateOptions}"
+                                                  ItemTemplate="{StaticResource TranslatedTextTemplate}"
                                                   SelectedItem="{Binding Predicate}" />
 
                                         <!--  搜索输入框  -->
@@ -160,6 +170,7 @@
                                                   Margin="0,0,10,0"
                                                   HorizontalAlignment="Left"
                                                   ItemsSource="{Binding Source={x:Static local:ConditionDefinitions.AvatarResultList}}"
+                                                  ItemTemplate="{StaticResource TranslatedTextTemplate}"
                                                   SelectedItem="{Binding Result}" />
 
                                         <!--  清除按钮  -->
