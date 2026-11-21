@@ -438,6 +438,13 @@ public partial class AutoPickTrigger : ITaskTrigger
             using var textMat = new Mat(content.CaptureRectArea.CacheGreyMat, textRect);
             text = TextInferenceFactory.Pick.Value.Inference(textMat);
         }
+        else if (!isChineseGame
+                 && TryOcrWrappedItemName(content.CaptureRectArea.SrcMat, textRect,
+                     foundRectArea.Height, OcrFactory.Paddle) is { Length: > 0 } wrappedText)
+        {
+            // 非中文的长名称会换成两行（如“Pena de Águia do / Sortudo”），按 F 键高度截取的单行区域只包含半行文字，无法匹配名单
+            text = wrappedText;
+        }
         else
         {
             using var textMat = new Mat(content.CaptureRectArea.SrcMat, textRect);
@@ -589,6 +596,68 @@ public partial class AutoPickTrigger : ITaskTrigger
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// 换行判断：F 键上方探测带中亮色像素达到该数量时，认为物品名称换成了两行
+    /// </summary>
+    private const int WrappedNameBrightPixelThreshold = 20;
+
+    /// <summary>
+    /// 识别换成两行的物品名称（非中文语言的长名称）。名称只有一行时返回 null，由调用方按原来的单行方式识别。
+    /// 1. 单行名称与 F 键垂直居中，F 键上方半个键高的区域没有文字；两行名称的第一行会进入这个区域
+    /// 2. 换行时以 F 键中心为基准截取更高的区域，用带检测模型的 OCR 找出各行文字
+    /// 3. 只保留中心距 F 键中心不超过一个键高的行（当前物品的两行），排除列表中相邻物品，按从上到下拼接
+    /// </summary>
+    /// <param name="src">截图原图（BGR）</param>
+    /// <param name="textRect">按 F 键高度计算的单行文字区域</param>
+    /// <param name="keyHeight">F 键高度</param>
+    /// <param name="ocr">带检测模型的 OCR 服务</param>
+    /// <returns>拼接后的名称；不是两行或识别失败时返回 null</returns>
+    internal static string? TryOcrWrappedItemName(Mat src, Rect textRect, int keyHeight, IOcrService ocr)
+    {
+        var probeHeight = keyHeight / 2;
+        var probeY = textRect.Y - probeHeight;
+        if (probeHeight <= 0 || probeY < 0)
+        {
+            return null;
+        }
+
+        // 1. 探测 F 键上方是否有亮色文字像素（背景为半透明深色）。
+        //    物品名称可能是白色或彩色（如青色），彩色文字的灰度值偏低，因此按 HSV 的明度（各通道最大值）判断
+        using (var probe = new Mat(src, new Rect(textRect.X, probeY, textRect.Width, probeHeight)))
+        using (var hsv = probe.CvtColor(ColorConversionCodes.BGR2HSV))
+        using (var value = hsv.ExtractChannel(2))
+        using (var bright = value.Threshold(200, 255, ThresholdTypes.Binary))
+        {
+            if (Cv2.CountNonZero(bright) < WrappedNameBrightPixelThreshold)
+            {
+                return null;
+            }
+        }
+
+        // 2. 以 F 键中心为基准截取上下各约 1.3 个键高的区域
+        var centerY = textRect.Y + keyHeight / 2;
+        var half = (int)(keyHeight * 1.3);
+        var top = Math.Max(0, centerY - half);
+        var bottom = Math.Min(src.Height, centerY + half);
+        if (bottom - top <= keyHeight)
+        {
+            return null;
+        }
+
+        using var tallMat = new Mat(src, new Rect(textRect.X, top, textRect.Width, bottom - top));
+        var result = ocr.OcrResult(tallMat);
+
+        // 3. 只保留当前物品的行，从上到下拼接
+        var localCenter = centerY - top;
+        var lines = result.Regions
+            .Where(r => !string.IsNullOrWhiteSpace(r.Text) && Math.Abs(r.Rect.Center.Y - localCenter) <= keyHeight)
+            .OrderBy(r => r.Rect.Center.Y)
+            .ThenBy(r => r.Rect.Center.X)
+            .Select(r => r.Text.Trim())
+            .ToList();
+        return lines.Count == 0 ? null : string.Join(' ', lines);
     }
 
     public static Rect GetWhiteTextBoundingRect(Mat textMat)
