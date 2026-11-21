@@ -20,6 +20,38 @@ public sealed class MapMaskDataSourceState
     /// 当前数据源下被用户隐藏的点位唯一标识。
     /// </summary>
     public List<string> HiddenMapPointKeys { get; set; } = [];
+
+    /// <summary>
+    /// 当前数据源下保存的点位类型组合（“方案”），只存本地，不同步到账号。
+    /// </summary>
+    public List<MapMaskProfileState> Profiles { get; set; } = [];
+
+    /// <summary>
+    /// 最近应用的方案标识；没有应用方案时为空。
+    /// </summary>
+    public string? ActiveProfileId { get; set; }
+}
+
+/// <summary>
+/// 一个保存的点位类型组合（方案），应用时地图上只显示其中的类型。
+/// </summary>
+[Serializable]
+public sealed class MapMaskProfileState
+{
+    /// <summary>
+    /// 方案唯一标识。
+    /// </summary>
+    public string Id { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 用户填写的方案名称。
+    /// </summary>
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 方案包含的点位标签，结构与已选标签一致，便于离线恢复。
+    /// </summary>
+    public List<MapMaskSelectedLabelState> Items { get; set; } = [];
 }
 
 [Serializable]
@@ -156,13 +188,39 @@ public static class MapMaskStateStorage
         state ??= new MapMaskDataSourceState();
         state.SelectedLabelItems ??= [];
         state.HiddenMapPointKeys ??= [];
+        state.Profiles ??= [];
         state.SelectedLabelItems = state.SelectedLabelItems.Where(x => x != null).ToList();
         state.HiddenMapPointKeys = state.HiddenMapPointKeys
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
-        foreach (var item in state.SelectedLabelItems)
+        NormalizeLabels(state.SelectedLabelItems);
+
+        // 方案：丢弃没有标识的项，并规范化其中的标签
+        state.Profiles = state.Profiles.Where(x => x != null && !string.IsNullOrWhiteSpace(x.Id)).ToList();
+        foreach (var profile in state.Profiles)
+        {
+            profile.Name ??= string.Empty;
+            profile.Items ??= [];
+            profile.Items = profile.Items.Where(x => x != null).ToList();
+            NormalizeLabels(profile.Items);
+        }
+
+        if (state.ActiveProfileId != null && state.Profiles.All(x => x.Id != state.ActiveProfileId))
+        {
+            state.ActiveProfileId = null;
+        }
+
+        return state;
+    }
+
+    /// <summary>
+    /// 把标签状态中的空字段收敛为空值。
+    /// </summary>
+    private static void NormalizeLabels(IEnumerable<MapMaskSelectedLabelState> items)
+    {
+        foreach (var item in items)
         {
             item.Id ??= string.Empty;
             item.LabelIds ??= [];
@@ -170,8 +228,22 @@ public static class MapMaskStateStorage
             item.Name ??= string.Empty;
             item.IconUrl ??= string.Empty;
         }
+    }
 
-        return state;
+    /// <summary>
+    /// 复制一个标签状态。
+    /// </summary>
+    private static MapMaskSelectedLabelState CloneLabel(MapMaskSelectedLabelState x)
+    {
+        return new MapMaskSelectedLabelState
+        {
+            Id = x.Id,
+            LabelIds = x.LabelIds.ToList(),
+            ParentId = x.ParentId,
+            Name = x.Name,
+            IconUrl = x.IconUrl,
+            PointCount = x.PointCount
+        };
     }
 
     /// <summary>
@@ -181,16 +253,15 @@ public static class MapMaskStateStorage
     {
         return new MapMaskDataSourceState
         {
-            SelectedLabelItems = state.SelectedLabelItems.Select(x => new MapMaskSelectedLabelState
+            SelectedLabelItems = state.SelectedLabelItems.Select(CloneLabel).ToList(),
+            HiddenMapPointKeys = state.HiddenMapPointKeys.ToList(),
+            Profiles = state.Profiles.Select(p => new MapMaskProfileState
             {
-                Id = x.Id,
-                LabelIds = x.LabelIds.ToList(),
-                ParentId = x.ParentId,
-                Name = x.Name,
-                IconUrl = x.IconUrl,
-                PointCount = x.PointCount
+                Id = p.Id,
+                Name = p.Name,
+                Items = p.Items.Select(CloneLabel).ToList()
             }).ToList(),
-            HiddenMapPointKeys = state.HiddenMapPointKeys.ToList()
+            ActiveProfileId = state.ActiveProfileId
         };
     }
 

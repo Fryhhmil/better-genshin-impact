@@ -144,7 +144,12 @@ namespace BetterGenshinImpact.ViewModel
 
         public int MapPointTotalCount => MapPoints.Count;
 
-        public int VisibleMapPointCount => MapPoints.Count(x => !x.IsHidden);
+        /// <summary>
+        /// 地图上实际可见的点位数：开启“隐藏已收集”时不计已收集的点位
+        /// </summary>
+        public int VisibleMapPointCount => Config.MapMaskConfig.HideMarkedPoints
+            ? MapPoints.Count(x => !x.IsHidden)
+            : MapPoints.Count;
 
         public int HiddenMapPointCount => MapPoints.Count(IsMapPointHidden);
 
@@ -162,22 +167,33 @@ namespace BetterGenshinImpact.ViewModel
 
         public double MiniMapOverlaySizeRatio => MapAssets.MimiMapRect1080P.Width / 1080d;
 
-        public sealed record MapPointApiProviderOption(MapPointApiProvider Provider, string DisplayName);
+        /// <summary>
+        /// 点位数据源选项
+        /// </summary>
+        /// <param name="Provider">数据源</param>
+        /// <param name="DisplayName">分段按钮上的短名称</param>
+        /// <param name="Description">悬停提示中的完整说明</param>
+        public sealed record MapPointApiProviderOption(MapPointApiProvider Provider, string DisplayName, string Description);
 
+        /// <summary>
+        /// HoYoLAB 名称语言选项
+        /// </summary>
+        /// <param name="Code">语言代码</param>
+        /// <param name="DisplayName">下拉框中的短名称</param>
         public sealed record MapLanguageOption(string Code, string DisplayName);
 
         public IReadOnlyList<MapPointApiProviderOption> MapPointApiProviderOptions { get; } =
         [
-            new(MapPointApiProvider.MihoyoMap, I18nService.Instance.Translate("米游社大地图")),
-            new(MapPointApiProvider.KongyingTavern, I18nService.Instance.Translate("空荧酒馆")),
-            new(MapPointApiProvider.HoYoLab, "HoYoLab")
+            new(MapPointApiProvider.MihoyoMap, I18nService.Instance.Translate("米游社"), I18nService.Instance.Translate("米游社大地图（官方，国服）")),
+            new(MapPointApiProvider.KongyingTavern, I18nService.Instance.Translate("空荧酒馆"), I18nService.Instance.Translate("空荧酒馆（社区，国服）")),
+            new(MapPointApiProvider.HoYoLab, "HoYoLAB", I18nService.Instance.Translate("HoYoLAB（官方，国际服）"))
         ];
 
         public IReadOnlyList<MapLanguageOption> HoYoLabLanguageOptions { get; } =
         [
-            new(MapMaskConfig.HoYoLabLanguageEnUs, "English (en-us)"),
-            new(MapMaskConfig.HoYoLabLanguagePtPt, "Português (pt-pt)"),
-            new(MapMaskConfig.HoYoLabLanguageEsEs, "Español (es-es)")
+            new(MapMaskConfig.HoYoLabLanguagePtPt, "PT"),
+            new(MapMaskConfig.HoYoLabLanguageEnUs, "EN"),
+            new(MapMaskConfig.HoYoLabLanguageEsEs, "ES")
         ];
 
         [ObservableProperty] private MapPointApiProviderOption? _selectedMapPointApiProviderOption;
@@ -383,7 +399,21 @@ namespace BetterGenshinImpact.ViewModel
         [RelayCommand(AllowConcurrentExecutions = true)]
         private async Task SelectMapLabelCategory(MapLabelCategoryVm? category)
         {
+            // 重复点击当前大类（且未在搜索）时不重新加载
+            if (category != null && ReferenceEquals(category, SelectedMapLabelCategory)
+                                  && string.IsNullOrWhiteSpace(MapLabelSearchText) && MapLabelItems.Count > 0)
+            {
+                return;
+            }
+
             SelectedMapLabelCategory = category;
+            // 点击大类时清空搜索：清空会触发列表刷新，不再重复加载
+            if (!string.IsNullOrWhiteSpace(MapLabelSearchText))
+            {
+                MapLabelSearchText = string.Empty;
+                return;
+            }
+
             await StartPopulateRightListAsync(category, MapLabelSearchText);
         }
 
@@ -578,6 +608,8 @@ namespace BetterGenshinImpact.ViewModel
             {
                 SelectedMapLabelItems.Clear();
                 SelectedMapLabelCategory = null;
+                // 方案按数据源分别保存，切换后重新读取
+                ClearMapProfiles();
                 MapLabelCategories = [];
                 MapLabelItems = [];
                 MapPointLabels = [];
@@ -831,6 +863,8 @@ namespace BetterGenshinImpact.ViewModel
 
         partial void OnMapLabelSearchTextChanged(string value)
         {
+            RefreshMapLabelCategoryActiveState();
+            NotifyMapLabelGridHeaderChanged();
             _ = StartPopulateRightListAsync(SelectedMapLabelCategory, value);
         }
 
@@ -867,8 +901,14 @@ namespace BetterGenshinImpact.ViewModel
                     return;
                 }
 
-                var vms = categories.Select(x => new MapLabelCategoryVm(x)).ToList();
+                var vms = categories.Select((x, i) => new MapLabelCategoryVm(x, i)).ToList();
                 MapLabelCategories = new ObservableCollection<MapLabelCategoryVm>(vms);
+                foreach (var vm in vms)
+                {
+                    _ = LoadCategoryIconAsync(vm);
+                }
+
+                LoadMapProfiles();
                 await SelectMapLabelCategory(MapLabelCategories.FirstOrDefault());
                 await RestoreSelectedMapLabelItemsFromStorageAsync();
                 _isMapLabelTreeLoaded = true;
@@ -1062,16 +1102,23 @@ namespace BetterGenshinImpact.ViewModel
                     }
                 }, DispatcherPriority.Background);
 
-                if (category?.Items == null)
-                {
-                    return;
-                }
-
-                var src = category.Items.AsEnumerable();
+                IEnumerable<MapLabelItemVm> src;
                 if (!string.IsNullOrWhiteSpace(searchText))
                 {
-                    var q = searchText.Trim();
-                    src = src.Where(x => x.Name.Contains(q, StringComparison.OrdinalIgnoreCase));
+                    // 搜索时在全部大类中查找类型（同时匹配大类名称），不区分重音
+                    var q = MapLabelSearch.Normalize(searchText.Trim());
+                    src = MapLabelCategories
+                        .SelectMany(c => c.Items)
+                        .Where(x => MapLabelSearch.Matches(x.Name, x.CategoryName, q))
+                        .ToList();
+                }
+                else if (category?.Items != null)
+                {
+                    src = category.Items;
+                }
+                else
+                {
+                    return;
                 }
 
                 const int batchSize = 24;
@@ -1241,15 +1288,18 @@ namespace BetterGenshinImpact.ViewModel
             SyncPointInfoPopupHiddenState();
         }
 
-        [RelayCommand(CanExecute = nameof(CanChangeAllMapPoints))]
+        /// <summary>
+        /// 把当前已加载（已开启类型）的点位全部标记为已收集；其他类型的标记保持不变
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(CanMarkAllMapPoints))]
         private void HideAllMapPoints()
         {
+            IsMarkAllConfirmPending = false;
             if (MapPoints.Count == 0)
             {
                 return;
             }
 
-            _hiddenMapPointIds.Clear();
             foreach (var point in MapPoints)
             {
                 _hiddenMapPointIds.Add(GetMapPointKey(point));
@@ -1260,15 +1310,22 @@ namespace BetterGenshinImpact.ViewModel
             SyncPointInfoPopupHiddenState();
         }
 
-        [RelayCommand(CanExecute = nameof(CanChangeAllMapPoints))]
+        /// <summary>
+        /// 取消当前已加载点位的已收集标记；其他类型的标记保持不变
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(CanUnmarkAllMapPoints))]
         private void ShowAllMapPoints()
         {
-            if (_hiddenMapPointIds.Count == 0)
+            if (!HasHiddenMapPoints)
             {
                 return;
             }
 
-            _hiddenMapPointIds.Clear();
+            foreach (var point in MapPoints)
+            {
+                _hiddenMapPointIds.Remove(GetMapPointKey(point));
+            }
+
             ApplyMapPointHiddenStates();
             SaveHiddenMapPointKeysToStorage();
             SyncPointInfoPopupHiddenState();
@@ -1385,92 +1442,10 @@ namespace BetterGenshinImpact.ViewModel
             OnPropertyChanged(nameof(HasMapPoints));
             OnPropertyChanged(nameof(HasHiddenMapPoints));
             OnPropertyChanged(nameof(MapPointVisibilitySummary));
+            // 底栏的可见数量与“全部标记 / 全部取消标记”可用状态
+            NotifyMapMenuFooterChanged();
             // 标记变化后同步分类网格的“已标记/总数”
             RefreshMapLabelMarkedCounts();
-        }
-    }
-
-    public partial class MapLabelCategoryVm : ObservableObject
-    {
-        public string Id { get; }
-        public string Name { get; }
-        public string IconUrl { get; }
-        public ObservableCollection<MapLabelItemVm> Items { get; }
-
-        public MapLabelCategoryVm(MaskMapPointLabel category)
-        {
-            Id = category.LabelId;
-            Name = category.Name;
-            IconUrl = category.IconUrl;
-            Items = new ObservableCollection<MapLabelItemVm>((category.Children ?? Array.Empty<MaskMapPointLabel>()).Select(x => new MapLabelItemVm(x)));
-        }
-    }
-
-    public partial class MapLabelItemVm : ObservableObject
-    {
-        public string Id { get; }
-        public IReadOnlyList<string> LabelIds { get; }
-        public string Name { get; }
-        public string IconUrl { get; }
-        public int PointCount { get; }
-        public string ParentId { get; }
-
-        [ObservableProperty] private ImageSource? _iconImage;
-
-        /// <summary>
-        /// 是否已选中（正在地图上显示），网格中高亮显示
-        /// </summary>
-        [ObservableProperty] private bool _isSelected;
-
-        /// <summary>
-        /// 该分类下已标记的点位数量（分类点位加载后统计）
-        /// </summary>
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(PointCountText))]
-        private int _markedCount;
-
-        /// <summary>
-        /// 网格中显示的数量：没有标记时显示总数，有标记时显示“已标记/总数”
-        /// </summary>
-        public string PointCountText => MarkedCount > 0 ? $"{MarkedCount}/{PointCount}" : PointCount.ToString();
-
-        public MapLabelItemVm(MaskMapPointLabel item)
-        {
-            Id = item.LabelId;
-            LabelIds = item.LabelIds is { Count: > 0 } ? item.LabelIds : new[] { item.LabelId };
-            Name = item.Name;
-            IconUrl = item.IconUrl;
-            PointCount = item.PointCount;
-            ParentId = item.ParentId;
-        }
-
-        public MaskMapPointLabel ToModel()
-        {
-            return new MaskMapPointLabel
-            {
-                LabelId = Id,
-                LabelIds = LabelIds,
-                ParentId = ParentId,
-                Name = Name,
-                IconUrl = IconUrl,
-                PointCount = PointCount
-            };
-        }
-
-        public async Task LoadIconAsync(CancellationToken ct)
-        {
-            if (IconImage != null || string.IsNullOrEmpty(IconUrl))
-            {
-                return;
-            }
-
-            var img = await MapIconImageCache.GetAsync(IconUrl, ct);
-            if (img == null)
-            {
-                return;
-            }
-
-            await Application.Current.Dispatcher.InvokeAsync(() => { IconImage = img; }, DispatcherPriority.Background);
         }
     }
 }

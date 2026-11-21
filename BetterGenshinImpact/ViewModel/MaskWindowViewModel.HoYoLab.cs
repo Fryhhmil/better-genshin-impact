@@ -11,6 +11,7 @@ using BetterGenshinImpact.Service;
 using BetterGenshinImpact.Service.HoYoLab;
 using BetterGenshinImpact.Service.I18n;
 using BetterGenshinImpact.View.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 
@@ -81,9 +82,105 @@ namespace BetterGenshinImpact.ViewModel
             : string.Format(I18nService.Instance.Translate("已登录：{0}"), _hoYoLabAccount.Nickname);
 
         /// <summary>
-        /// “全部隐藏 / 全部显示”是否可用：登录账号时禁用，避免一次改动大量账号标记
+        /// 账号名称（没有昵称时显示“HoYoLAB”）
         /// </summary>
-        private bool CanChangeAllMapPoints() => !IsHoYoLabAccountMode;
+        public string HoYoLabNicknameText => string.IsNullOrWhiteSpace(_hoYoLabAccount.Nickname)
+            ? "HoYoLAB"
+            : _hoYoLabAccount.Nickname!;
+
+        /// <summary>
+        /// 头像中显示的首字母
+        /// </summary>
+        public string HoYoLabAvatarText => HoYoLabNicknameText.Trim() is { Length: > 0 } name
+            ? char.ToUpperInvariant(name[0]).ToString()
+            : "H";
+
+        /// <summary>
+        /// 是否正在从账号同步标记
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HoYoLabSyncStatusText))]
+        private bool _isHoYoLabSyncing;
+
+        /// <summary>
+        /// 上次同步成功的时间；未同步过时为空
+        /// </summary>
+        private DateTime? _hoYoLabLastSyncedAt;
+
+        /// <summary>
+        /// 同步状态文字：同步中 / x 分钟前已同步
+        /// </summary>
+        public string HoYoLabSyncStatusText
+        {
+            get
+            {
+                if (IsHoYoLabSyncing)
+                {
+                    return I18nService.Instance.Translate("同步中…");
+                }
+
+                if (_hoYoLabLastSyncedAt is not { } at)
+                {
+                    return I18nService.Instance.Translate("尚未同步");
+                }
+
+                var elapsed = DateTime.Now - at;
+                if (elapsed.TotalMinutes < 1)
+                {
+                    return I18nService.Instance.Translate("刚刚已同步");
+                }
+
+                return elapsed.TotalHours < 1
+                    ? string.Format(I18nService.Instance.Translate("{0} 分钟前已同步"), (int)elapsed.TotalMinutes)
+                    : string.Format(I18nService.Instance.Translate("{0} 小时前已同步"), (int)elapsed.TotalHours);
+            }
+        }
+
+        /// <summary>
+        /// 只保存在本机、尚未上传到账号的标记数量
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasHoYoLabPendingUploads), nameof(HoYoLabUploadButtonText))]
+        private int _hoYoLabPendingUploadCount;
+
+        /// <summary>
+        /// 是否有待上传的本地标记（显示上传按钮）
+        /// </summary>
+        public bool HasHoYoLabPendingUploads => HoYoLabPendingUploadCount > 0;
+
+        /// <summary>
+        /// 上传按钮文字，包含数量
+        /// </summary>
+        public string HoYoLabUploadButtonText => string.Format(I18nService.Instance.Translate("上传 {0} 个本地标记"), HoYoLabPendingUploadCount);
+
+        /// <summary>
+        /// 计算只保存在本机、账号上还没有的标记点位 ID
+        /// </summary>
+        /// <param name="marked">账号上已有的标记</param>
+        private static IReadOnlyList<long> GetPendingLocalMarkIds(IReadOnlySet<long> marked)
+        {
+            // 所有语言的本地文件都可能有标记，点位 ID 在各语言下相同
+            var localIds = new List<long>();
+            foreach (var lang in new[] { MapMaskConfig.HoYoLabLanguageEnUs, MapMaskConfig.HoYoLabLanguagePtPt, MapMaskConfig.HoYoLabLanguageEsEs })
+            {
+                var keys = MapMaskStateStorage.Read($"{MapPointApiProvider.HoYoLab}_{lang}").HiddenMapPointKeys;
+                localIds.AddRange(MapMarkSync.ParseLocalPointIds(keys));
+            }
+
+            return MapMarkSync.PendingUpload(localIds, marked);
+        }
+
+        /// <summary>
+        /// 账号标记加载后重新统计待上传数量
+        /// </summary>
+        private void RefreshHoYoLabPendingUploadCount()
+        {
+            var marked = _markTracker.MarkedIds;
+            HoYoLabPendingUploadCount = IsHoYoLabAccountMode && marked != null
+                ? GetPendingLocalMarkIds(marked).Count
+                : 0;
+        }
+
 
         /// <summary>
         /// 订阅登录状态变化，已登录时加载账号标记
@@ -135,8 +232,12 @@ namespace BetterGenshinImpact.ViewModel
             OnPropertyChanged(nameof(ShowHoYoLabLoginButton));
             OnPropertyChanged(nameof(ShowHoYoLabAccountPanel));
             OnPropertyChanged(nameof(HoYoLabAccountText));
-            HideAllMapPointsCommand.NotifyCanExecuteChanged();
-            ShowAllMapPointsCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(HoYoLabNicknameText));
+            OnPropertyChanged(nameof(HoYoLabAvatarText));
+            OnPropertyChanged(nameof(HoYoLabSyncStatusText));
+            RefreshHoYoLabPendingUploadCount();
+            // 账号模式下禁用批量标记
+            NotifyMapMenuFooterChanged();
         }
 
         /// <summary>
@@ -215,6 +316,7 @@ namespace BetterGenshinImpact.ViewModel
 
             var version = _markTracker.BeginLoad();
             var lang = HoYoLabMapApiService.NormalizeLanguage(Config.MapMaskConfig.HoYoLabLanguage);
+            IsHoYoLabSyncing = true;
             try
             {
                 var ids = await _hoYoLabMarkApi.GetMarkedPointIdsAsync(cookie, HoYoLabMapId, lang, CancellationToken.None);
@@ -224,7 +326,9 @@ namespace BetterGenshinImpact.ViewModel
                     return;
                 }
 
+                _hoYoLabLastSyncedAt = DateTime.Now;
                 ReapplyHiddenMapPoints();
+                RefreshHoYoLabPendingUploadCount();
                 _logger.LogInformation("已同步 HoYoLAB 账号标记：{Count} 个", ids.Count);
             }
             catch (HoYoLabSessionExpiredException)
@@ -235,6 +339,10 @@ namespace BetterGenshinImpact.ViewModel
             {
                 _markTracker.FailLoad(version);
                 _logger.LogWarning("读取 HoYoLAB 账号标记失败：{Message}", ex.Message);
+            }
+            finally
+            {
+                IsHoYoLabSyncing = false;
             }
         }
 
@@ -355,15 +463,7 @@ namespace BetterGenshinImpact.ViewModel
                 return;
             }
 
-            // 所有语言的本地文件都可能有标记，点位 ID 在各语言下相同
-            var localIds = new List<long>();
-            foreach (var lang in new[] { MapMaskConfig.HoYoLabLanguageEnUs, MapMaskConfig.HoYoLabLanguagePtPt, MapMaskConfig.HoYoLabLanguageEsEs })
-            {
-                var keys = MapMaskStateStorage.Read($"{MapPointApiProvider.HoYoLab}_{lang}").HiddenMapPointKeys;
-                localIds.AddRange(MapMarkSync.ParseLocalPointIds(keys));
-            }
-
-            var pending = MapMarkSync.PendingUpload(localIds, marked);
+            var pending = GetPendingLocalMarkIds(marked);
             if (pending.Count == 0)
             {
                 _logger.LogInformation("没有需要上传的本地标记");

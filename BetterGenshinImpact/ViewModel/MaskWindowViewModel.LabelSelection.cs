@@ -60,6 +60,10 @@ namespace BetterGenshinImpact.ViewModel
         private void RefreshMapLabelSelectionHighlight()
         {
             MapLabelSelection.Apply(MapLabelItems, SelectedMapLabelItems);
+            // 大类徽标、网格批量按钮、右侧已开启栏、方案“已修改”状态都随已选列表变化
+            MapLabelSelection.ApplyCategoryCounts(MapLabelCategories, SelectedMapLabelItems);
+            NotifyMapMenuSelectionChanged();
+            RefreshMapProfileState();
         }
     }
 }

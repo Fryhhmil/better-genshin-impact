@@ -315,7 +315,8 @@ public class PointsCanvas : FrameworkElement
     {
         if (point.IsHidden)
         {
-            dc.PushOpacity(0.35);
+            // 已收集的点位半透明显示（与点位菜单设计一致）
+            dc.PushOpacity(0.38);
         }
 
         double radius = width / 2.0;

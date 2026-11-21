@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using BetterGenshinImpact.GameTask.MapMask;
+using BetterGenshinImpact.Service.I18n;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -44,6 +45,11 @@ namespace BetterGenshinImpact.ViewModel
             {
                 OnPropertyChanged(nameof(ShowMiniMapPoints));
             }
+            else if (e.PropertyName == nameof(MapMaskConfig.HideMarkedPoints))
+            {
+                // “隐藏已收集”影响底栏的可见数量
+                NotifyMapMenuFooterChanged();
+            }
         }
 
         /// <summary>
@@ -60,12 +66,15 @@ namespace BetterGenshinImpact.ViewModel
         }
 
         /// <summary>
-        /// 切换“隐藏已标记的标点”（保存到配置，重启后保留）
+        /// 眼睛按钮的提示文字
         /// </summary>
-        [RelayCommand]
-        private void ToggleHideMarkedPoints()
+        public string MapPointsEyeToolTip => AreMapPointsTemporarilyHidden
+            ? I18nService.Instance.Translate("重新显示标点")
+            : I18nService.Instance.Translate("临时隐藏全部标点");
+
+        partial void OnAreMapPointsTemporarilyHiddenChanged(bool value)
         {
-            Config.MapMaskConfig.HideMarkedPoints = !Config.MapMaskConfig.HideMarkedPoints;
+            OnPropertyChanged(nameof(MapPointsEyeToolTip));
         }
     }
 }

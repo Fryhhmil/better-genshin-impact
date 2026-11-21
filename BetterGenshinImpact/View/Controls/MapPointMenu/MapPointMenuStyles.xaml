@@ -1,0 +1,295 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+    <!--  大地图点位菜单的设计令牌与控件样式（深色半透明，叠加在游戏画面上）  -->
+
+    <!--  颜色  -->
+    <SolidColorBrush x:Key="MapMenu.PanelBackground" Color="#E6111319" />
+    <SolidColorBrush x:Key="MapMenu.PanelBorder" Color="#1AFFFFFF" />
+    <SolidColorBrush x:Key="MapMenu.Divider" Color="#12FFFFFF" />
+    <SolidColorBrush x:Key="MapMenu.FooterBackground" Color="#26000000" />
+    <SolidColorBrush x:Key="MapMenu.ControlSurface" Color="#0FFFFFFF" />
+    <SolidColorBrush x:Key="MapMenu.ControlBorder" Color="#17FFFFFF" />
+    <SolidColorBrush x:Key="MapMenu.TextPrimary" Color="#FFECE5D8" />
+    <SolidColorBrush x:Key="MapMenu.TextSecondary" Color="#FFB4B8C2" />
+    <SolidColorBrush x:Key="MapMenu.TextTertiary" Color="#FF8A8F9C" />
+    <SolidColorBrush x:Key="MapMenu.Accent" Color="#FF4AA3FF" />
+    <SolidColorBrush x:Key="MapMenu.OnAccent" Color="#FF0B1A2B" />
+    <SolidColorBrush x:Key="MapMenu.Gold" Color="#FFD3BC8E" />
+    <SolidColorBrush x:Key="MapMenu.OnGold" Color="#FF2A2416" />
+    <SolidColorBrush x:Key="MapMenu.Selected" Color="#FFECE5D8" />
+    <SolidColorBrush x:Key="MapMenu.OnSelected" Color="#FF1B1E26" />
+    <SolidColorBrush x:Key="MapMenu.Remove" Color="#FFE5484D" />
+    <SolidColorBrush x:Key="MapMenu.Modified" Color="#FFB08A45" />
+    <SolidColorBrush x:Key="MapMenu.SyncOk" Color="#FF4ED17E" />
+    <SolidColorBrush x:Key="MapMenu.OrbBackground" Color="#FFECE5D8" />
+    <SolidColorBrush x:Key="MapMenu.OrbIcon" Color="#FF3B4255" />
+
+    <!--  面板阴影  -->
+    <DropShadowEffect x:Key="MapMenu.PanelShadow"
+                      BlurRadius="40"
+                      ShadowDepth="12"
+                      Direction="270"
+                      Opacity="0.45"
+                      Color="#FF000000" />
+
+    <!--  半透明面板（菜单、已开启栏、提示条、详情卡片）  -->
+    <Style x:Key="MapMenu.GlassBorder" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource MapMenu.PanelBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MapMenu.PanelBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="Effect" Value="{StaticResource MapMenu.PanelShadow}" />
+        <Setter Property="TextElement.Foreground" Value="{StaticResource MapMenu.TextPrimary}" />
+    </Style>
+
+    <!--  文字  -->
+    <Style x:Key="MapMenu.HeadingText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.TextPrimary}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style x:Key="MapMenu.CaptionText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.TextTertiary}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <!--  文字按钮：默认样式；悬停时叠加一层浅色，禁用时 0.38 透明度  -->
+    <Style x:Key="MapMenu.TextButton" TargetType="Button">
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.TextPrimary}" />
+        <Setter Property="Background" Value="#0DFFFFFF" />
+        <Setter Property="BorderBrush" Value="#1AFFFFFF" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8">
+                        <Grid>
+                            <Border x:Name="Hover"
+                                    Background="#14FFFFFF"
+                                    CornerRadius="7"
+                                    Opacity="0" />
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="False" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Hover" Property="Background" Value="#24FFFFFF" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.38" />
+                            <Setter TargetName="Hover" Property="Opacity" Value="0" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  主要操作（蓝）  -->
+    <Style x:Key="MapMenu.PrimaryButton" TargetType="Button" BasedOn="{StaticResource MapMenu.TextButton}">
+        <Setter Property="Background" Value="{StaticResource MapMenu.Accent}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MapMenu.Accent}" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.OnAccent}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!--  已收集相关操作（金）  -->
+    <Style x:Key="MapMenu.GoldButton" TargetType="Button" BasedOn="{StaticResource MapMenu.TextButton}">
+        <Setter Property="Background" Value="{StaticResource MapMenu.Gold}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MapMenu.Gold}" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.OnGold}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!--  柔和提示操作（浅蓝）  -->
+    <Style x:Key="MapMenu.SoftButton" TargetType="Button" BasedOn="{StaticResource MapMenu.TextButton}">
+        <Setter Property="Background" Value="#244AA3FF" />
+        <Setter Property="BorderBrush" Value="#804AA3FF" />
+        <Setter Property="Foreground" Value="#FFCFE6FF" />
+    </Style>
+
+    <!--  次要操作（仅文字）  -->
+    <Style x:Key="MapMenu.GhostButton" TargetType="Button" BasedOn="{StaticResource MapMenu.TextButton}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.TextSecondary}" />
+    </Style>
+
+    <!--  图标按钮（36×36）  -->
+    <Style x:Key="MapMenu.IconButton" TargetType="Button">
+        <Setter Property="Width" Value="36" />
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.TextSecondary}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="Transparent"
+                            CornerRadius="10">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="#14FFFFFF" />
+                            <Setter Property="Foreground" Value="{StaticResource MapMenu.TextPrimary}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.38" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  小图标按钮（26×26）  -->
+    <Style x:Key="MapMenu.SmallIconButton" TargetType="Button" BasedOn="{StaticResource MapMenu.IconButton}">
+        <Setter Property="Width" Value="26" />
+        <Setter Property="Height" Value="26" />
+    </Style>
+
+    <!--  开关（“隐藏已收集”）：轨道 + 圆点，开启时金色  -->
+    <Style x:Key="MapMenu.Switch" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.TextPrimary}" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Background="Transparent" Orientation="Horizontal">
+                        <Border x:Name="Track"
+                                Width="32"
+                                Height="18"
+                                Margin="2,0,8,0"
+                                VerticalAlignment="Center"
+                                Background="#33FFFFFF"
+                                CornerRadius="9">
+                            <Ellipse x:Name="Knob"
+                                     Width="14"
+                                     Height="14"
+                                     Margin="2,0"
+                                     HorizontalAlignment="Left"
+                                     Fill="{StaticResource MapMenu.TextPrimary}" />
+                        </Border>
+                        <ContentPresenter VerticalAlignment="Center" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{StaticResource MapMenu.Modified}" />
+                            <Setter TargetName="Knob" Property="HorizontalAlignment" Value="Right" />
+                            <Setter TargetName="Knob" Property="Fill" Value="#FFFFF6E2" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!--  可点击的伪输入框（点击后弹出真实输入窗口）  -->
+    <Style x:Key="MapMenu.InputBorder" TargetType="Border">
+        <Setter Property="Height" Value="36" />
+        <Setter Property="Background" Value="{StaticResource MapMenu.ControlSurface}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MapMenu.ControlBorder}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Cursor" Value="IBeam" />
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="#33FFFFFF" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  蓝色数量徽标  -->
+    <Style x:Key="MapMenu.Badge" TargetType="Border">
+        <Setter Property="MinWidth" Value="20" />
+        <Setter Property="Height" Value="20" />
+        <Setter Property="Padding" Value="6,0" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Background" Value="{StaticResource MapMenu.Accent}" />
+        <Setter Property="TextElement.Foreground" Value="{StaticResource MapMenu.OnAccent}" />
+        <Setter Property="TextElement.FontSize" Value="11" />
+        <Setter Property="TextElement.FontWeight" Value="Bold" />
+    </Style>
+
+    <!--  加载占位卡片：透明度来回变化提示正在加载  -->
+    <Style x:Key="MapMenu.SkeletonCard" TargetType="Border">
+        <Setter Property="Height" Value="58" />
+        <Setter Property="Margin" Value="4" />
+        <Setter Property="CornerRadius" Value="11" />
+        <Setter Property="Background" Value="#14FFFFFF" />
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0.35"
+                                         To="1"
+                                         Duration="0:0:0.55" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--  地图左下角的圆形按钮内芯（46×46，仿游戏按钮，外圈由视图中的浅色描边提供）。
+          Tag 为 True 时金色，表示开关已开启；悬停时叠加一层浅灰  -->
+    <Style x:Key="MapMenu.ClassicOrbButton" TargetType="Button">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Height" Value="46" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.OrbIcon}" />
+        <Setter Property="ToolTipService.Placement" Value="Right" />
+        <Setter Property="ToolTipService.HorizontalOffset" Value="6" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse x:Name="Face" Fill="#FFECE5D8" />
+                        <Ellipse x:Name="Hover" Fill="#1A000000" Opacity="0" />
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Tag">
+                            <Trigger.Value>
+                                <sys:Boolean>True</sys:Boolean>
+                            </Trigger.Value>
+                            <Setter TargetName="Face" Property="Fill" Value="#FFD3BC8E" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Hover" Property="Fill" Value="#33000000" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
