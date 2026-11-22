@@ -1,5 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Threading;
+using BetterGenshinImpact.Core.Config;
+using BetterGenshinImpact.Core.Input.Backends.Win32;
+using BetterGenshinImpact.Helpers;
 using Microsoft.Extensions.Logging;
+using Vanara.PInvoke;
 
 namespace BetterGenshinImpact.Core.Input.Backends.Gamepad;
 
@@ -9,6 +15,11 @@ namespace BetterGenshinImpact.Core.Input.Backends.Gamepad;
 /// </summary>
 public sealed class GamepadInputBackend : IInputBackend
 {
+    /// <summary>
+    /// 驱动缺失的提示是否已经输出过（每个进程只提示一次）
+    /// </summary>
+    private static int _driverMissingWarned;
+
     /// <summary>
     /// 虚拟手柄设备
     /// </summary>
@@ -37,4 +48,63 @@ public sealed class GamepadInputBackend : IInputBackend
     public void ReleaseAll() => _channel.ReleaseAll();
 
     public void Dispose() => _pad.Dispose();
+
+    /// <summary>
+    /// 按配置创建输入后端：手柄模式开启且 ViGEmBus 驱动可用时使用虚拟手柄，否则使用 Windows 键鼠后端。
+    /// 驱动缺失时只提示一次，不抛异常（识别类功能如地图遮罩仍可使用）
+    /// </summary>
+    /// <param name="config">全局配置</param>
+    /// <param name="hWnd">游戏窗口句柄（键鼠后端使用）</param>
+    public static IInputBackend CreateOrFallback(AllConfig config, IntPtr hWnd)
+    {
+        if (!config.GamepadConfig.Enabled)
+        {
+            return new Win32InputBackend(hWnd);
+        }
+
+        if (!ViGEmDualShock4Gamepad.TryCreate(out var pad, out var error))
+        {
+            if (Interlocked.Exchange(ref _driverMissingWarned, 1) == 0)
+            {
+                App.GetLogger<GamepadInputBackend>().LogWarning(
+                    "未检测到 ViGEmBus 驱动，手柄模式无法发送按键（{Error}）。请安装：https://github.com/nefarius/ViGEmBus/releases", error);
+            }
+
+            return new Win32InputBackend(hWnd);
+        }
+
+        var keyMap = new GamepadKeyMap(config.GamepadConfig.ConfirmButton, GetConfirmKeys(config));
+        return new GamepadInputBackend(pad, keyMap);
+    }
+
+    /// <summary>
+    /// 映射为确认键的键盘按键：空格、回车、F 与用户配置的拾取键
+    /// </summary>
+    private static IEnumerable<User32.VK> GetConfirmKeys(AllConfig config)
+    {
+        yield return User32.VK.VK_SPACE;
+        yield return User32.VK.VK_RETURN;
+        yield return User32.VK.VK_F;
+
+        var pickKey = config.AutoPickConfig.PickKey;
+        if (string.IsNullOrWhiteSpace(pickKey))
+        {
+            yield break;
+        }
+
+        User32.VK? vk = null;
+        try
+        {
+            vk = User32Helper.ToVk(pickKey.Trim());
+        }
+        catch (Exception)
+        {
+            // 无法识别的自定义拾取键忽略，F 已经覆盖默认情况
+        }
+
+        if (vk is { } value)
+        {
+            yield return value;
+        }
+    }
 }

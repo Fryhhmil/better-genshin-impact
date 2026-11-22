@@ -56,6 +56,9 @@
 
 		<PackageReference Include="AvalonEdit" Version="6.3.1.120" />
 
+		<!-- ViGEmBus 虚拟手柄：游戏处于手柄模式时用于发送按键 -->
+		<PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.256" />
+
 		<PackageReference Include="BetterGI.VCRuntime" Version="14.44.35208" />
 		<PackageReference Include="BetterGI.Assets.Map" Version="1.0.28" />
         <PackageReference Include="BetterGI.Assets.Model" Version="1.0.41" />
