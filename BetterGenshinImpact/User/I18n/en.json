@@ -6229,5 +6229,11 @@
   "；本机副本仍可用，已继续检查，但它可能不是远端最新版本": "; the local copy is still available and checking continued, but it may not be the latest remote version",
   "；此任务暂不识别奖励": "; this task does not recognize rewards yet",
   "；没有可用的本机副本，对应资源将跳过": "; no local copy is available, so the corresponding resources will be skipped",
-  "；累计变动：{0:+0;-0;±0}": "; cumulative change: {0:+0;-0;±0}"
+  "；累计变动：{0:+0;-0;±0}": "; cumulative change: {0:+0;-0;±0}",
+  "○ 圆圈": "○ Circle",
+  "✕ 叉": "✕ Cross",
+  "手柄模式（虚拟手柄）": "Controller mode (virtual controller)",
+  "新连接的手柄使用游戏默认布局（○ 确认），与实体手柄的设置无关": "Newly connected controllers use the game's default layout (○ confirms), regardless of your physical controller's settings",
+  "游戏使用手柄操作时开启：通过虚拟 DualShock 4 手柄跳过对话，需要安装 ViGEmBus 驱动，重新启动截图器后生效": "Turn on when playing with a controller: skips dialogue through a virtual DualShock 4. Requires the ViGEmBus driver; takes effect after restarting capture",
+  "虚拟手柄确认键": "Virtual controller confirm button"
 }
