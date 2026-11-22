@@ -18,6 +18,7 @@ using BetterGenshinImpact.Service.Model.MihoyoMap.Responses;
 using BetterGenshinImpact.Service.Tavern;
 using BetterGenshinImpact.Service.Tavern.Model;
 using LazyCache;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OpenCvSharp;
@@ -27,6 +28,11 @@ namespace BetterGenshinImpact.Service;
 public sealed class MaskMapPointService : IMaskMapPointService
 {
     public static readonly TimeSpan CacheDuration = TimeSpan.FromHours(5);
+
+    /// <summary>
+    /// 点位详情（文字与链接）的内存缓存时长：一段时间不再查看即释放，不写入磁盘
+    /// </summary>
+    private static readonly TimeSpan PointInfoCacheDuration = TimeSpan.FromMinutes(30);
 
     // 酒馆（空荧酒馆）点位标签树的第一层 Label 类别定义（固定、手工维护），用于构建第一层节点以及限定第二层归类范围。
     private static readonly IReadOnlyList<(long Id, long IconId, string Name)> KongyingFirstLayerLabelDefinitions = new (long Id, long IconId, string Name)[]
@@ -275,6 +281,14 @@ public sealed class MaskMapPointService : IMaskMapPointService
             return new MaskMapPointInfo { Text = $"点位 ID 非法: {point.Id}" };
         }
 
+        // 已查询过的点位详情直接从内存缓存返回；只缓存成功结果，失败时下次点击会重新查询
+        var cacheKey = GetPointInfoCacheKey(pointId);
+        var cached = _cache.Get<MaskMapPointInfo>(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+
         try
         {
             var resp = await GetMihoyoCompatibleApi().GetPointInfoAsync(new PointInfoRequest { PointId = pointId }, ct);
@@ -294,18 +308,33 @@ public sealed class MaskMapPointService : IMaskMapPointService
                 })
                 .ToList();
 
-            return new MaskMapPointInfo
+            var info = new MaskMapPointInfo
             {
                 Text = string.IsNullOrEmpty(content) ? "暂无描述" : content,
                 ImageUrl = imageUrl,
                 UrlList = urlList
             };
+            _cache.Add(cacheKey, info, new MemoryCacheEntryOptions { SlidingExpiration = PointInfoCacheDuration });
+            return info;
         }
         catch (Exception ex)
         {
             _logger.LogDebug(ex, "查询米游社地图点位详情失败");
             return new MaskMapPointInfo { Text = "查询失败" };
         }
+    }
+
+    /// <summary>
+    /// 点位详情缓存键：区分数据源与 HoYoLAB 语言
+    /// </summary>
+    private string GetPointInfoCacheKey(int pointId)
+    {
+        var provider = GetProvider();
+        var providerKey = provider == MapPointApiProvider.HoYoLab ? "hoyolab" : "mihoyo-map";
+        var langSegment = provider == MapPointApiProvider.HoYoLab
+            ? $":lang:{HoYoLabMapApiService.NormalizeLanguage(_config.MapMaskConfig.HoYoLabLanguage)}"
+            : string.Empty;
+        return $"{providerKey}:point-info{langSegment}:{pointId}";
     }
 
     private async Task<IReadOnlyList<MaskMapPointLabel>> GetKongyingLabelCategoriesAsync(CancellationToken ct)

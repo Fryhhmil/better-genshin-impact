@@ -210,7 +210,7 @@ public class TaskRunner
                 Interlocked.CompareExchange(ref stopReasonValue, (int)reason, -1);
                 TryCancel(runCancellation);
             });
-            _logger.LogInformation("→ {Text}", name + "任务启动！");
+            _logger.LogInformation("→ {Name:l}任务启动！", name);
 
             // 本轮令牌覆盖游戏启动等待、任务模式和全部业务操作。
             var runtime = await AcquireRuntimeAsync(waitForMainUi, runCancellation.Token);

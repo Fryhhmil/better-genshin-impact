@@ -128,7 +128,7 @@ public class CharacterCard
         }
         catch (System.Exception e)
         {
-            TaskControl.Logger.LogError($"角色【{characterCard.Name}】卡牌配置解析失败：{e.Message}");
+            TaskControl.Logger.LogError("角色【{Name:l}】卡牌配置解析失败：{Message:l}", characterCard.Name, e.Message);
             throw new System.Exception($"角色【{characterCard.Name}】卡牌配置解析失败：{e.Message}。请自行进行角色定义", e);
         }
     }

@@ -630,7 +630,7 @@ public class AutoFightTask : ISoloTask<AutoFightParam, NoData>
 
         if (_taskParam.BattleThresholdForLoot>=2 && countFight < _taskParam.BattleThresholdForLoot)
         {
-            Logger.LogInformation($"战斗人次（{countFight}）低于配置人次（{_taskParam.BattleThresholdForLoot}），跳过此次拾取！");
+            Logger.LogInformation("战斗人次（{Count}）低于配置人次（{Threshold}），跳过此次拾取！", countFight, _taskParam.BattleThresholdForLoot);
             return SoloTaskResult.Unverified("战斗结束，战斗人次低于配置人次，跳过拾取");
         }
         
@@ -778,7 +778,7 @@ public class AutoFightTask : ISoloTask<AutoFightParam, NoData>
 
             // Logger.LogInformation($"未识别到战斗结束yellow{b3.Item0},{b3.Item1},{b3.Item2}");
             // Logger.LogInformation($"未识别到战斗结束white{whiteTile.Item0},{whiteTile.Item1},{whiteTile.Item2}");
-            Logger.LogInformation($"未识别到战斗结束: yellow{b3.Item0},{b3.Item1},{b3.Item2};white{whiteTile.Item0},{whiteTile.Item1},{whiteTile.Item2}");
+            Logger.LogInformation("未识别到战斗结束: yellow{Y0},{Y1},{Y2};white{W0},{W1},{W2}", b3.Item0, b3.Item1, b3.Item2, whiteTile.Item0, whiteTile.Item1, whiteTile.Item2);
 
             if (finishDetectConfig.RotateFindEnemyEnabled)
             {

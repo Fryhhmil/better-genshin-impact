@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -35,30 +36,30 @@ internal static partial class PluginLanguageReader
             // 1. 校验代码、名称，同一插件内代码不重复
             if (!LanguageCodeRegex().IsMatch(info.Code))
             {
-                throw new InvalidOperationException($"界面语言代码不合法：{info.Code}。");
+                throw new InvalidOperationException(string.Format(I18nService.Instance.Translate("界面语言代码不合法：{0}。"), info.Code));
             }
 
             if (string.IsNullOrWhiteSpace(info.DisplayName))
             {
-                throw new InvalidOperationException($"界面语言 {info.Code} 缺少显示名称。");
+                throw new InvalidOperationException(string.Format(I18nService.Instance.Translate("界面语言 {0} 缺少显示名称。"), info.Code));
             }
 
             if (packs.Any(p => string.Equals(p.Code, info.Code, StringComparison.OrdinalIgnoreCase)))
             {
-                throw new InvalidOperationException($"界面语言 {info.Code} 重复声明。");
+                throw new InvalidOperationException(string.Format(I18nService.Instance.Translate("界面语言 {0} 重复声明。"), info.Code));
             }
 
             // 2. 语言文件必须在插件目录内
             var relativePath = string.IsNullOrWhiteSpace(info.File) ? Path.Combine("I18n", $"{info.Code}.json") : info.File;
             if (Path.IsPathRooted(relativePath) || relativePath.Split('/', '\\').Contains(".."))
             {
-                throw new InvalidOperationException($"界面语言 {info.Code} 的文件路径必须是插件目录内的相对路径：{relativePath}。");
+                throw new InvalidOperationException(string.Format(I18nService.Instance.Translate("界面语言 {0} 的文件路径必须是插件目录内的相对路径：{1}。"), info.Code, relativePath));
             }
 
             var filePath = Path.GetFullPath(Path.Combine(pluginDirectory, relativePath));
             if (!File.Exists(filePath))
             {
-                throw new InvalidOperationException($"界面语言 {info.Code} 的文件不存在：{relativePath}。");
+                throw new InvalidOperationException(string.Format(I18nService.Instance.Translate("界面语言 {0} 的文件不存在：{1}。"), info.Code, relativePath));
             }
 
             // 3. 读入翻译
@@ -69,10 +70,25 @@ internal static partial class PluginLanguageReader
             }
             catch (Exception e)
             {
-                throw new InvalidOperationException($"界面语言 {info.Code} 的文件无法解析：{relativePath}，{e.Message}", e);
+                throw new InvalidOperationException(string.Format(I18nService.Instance.Translate("界面语言 {0} 的文件无法解析：{1}，{2}"), info.Code, relativePath, e.Message), e);
             }
 
-            packs.Add(new UiLanguagePack(info.Code, info.DisplayName, translations));
+            // 4. 读入日志模板翻译（可选）：语言文件同目录下的 Log/<文件名>，缺失或损坏时只是不翻译日志
+            var logFilePath = Path.Combine(Path.GetDirectoryName(filePath)!, "Log", Path.GetFileName(filePath));
+            IReadOnlyDictionary<string, string>? logTranslations = null;
+            if (File.Exists(logFilePath))
+            {
+                try
+                {
+                    logTranslations = I18nService.ReadTranslationFile(logFilePath);
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"读取日志翻译文件 {logFilePath} 失败：{e}");
+                }
+            }
+
+            packs.Add(new UiLanguagePack(info.Code, info.DisplayName, translations, logTranslations));
         }
 
         return packs;

@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BetterGenshinImpact.I18nSync;
 
@@ -44,6 +45,68 @@ internal static class I18nJsonSynchronizer
         return languageFiles
             .Select(path => CreatePlan(path, sourceKeys, sourceKeySet, addOnly))
             .ToArray();
+    }
+
+    /// <summary>
+    /// 为各语言目录下 Log 子目录中的日志翻译文件生成同步计划。Log 子目录不存在的语言目录跳过，
+    /// 即只有已建立日志翻译文件的语言才会同步（避免给不翻译日志的语言生成上千条空条目）。
+    /// </summary>
+    /// <param name="projectDirectory">BetterGenshinImpact 项目目录。</param>
+    /// <param name="extraDirectories">额外的语言目录。</param>
+    /// <param name="logKeys">扫描出的日志模板 Key。</param>
+    /// <param name="addOnly">是否只补充、不删除废弃 Key。</param>
+    public static IReadOnlyList<LanguageFilePlan> CreateLogPlans(
+        string projectDirectory,
+        IReadOnlyList<string> extraDirectories,
+        IReadOnlyList<string> logKeys,
+        bool addOnly)
+    {
+        if (logKeys.Count == 0)
+        {
+            throw new InvalidOperationException("没有扫描到任何日志模板，为避免误删已中止同步。");
+        }
+
+        var logFiles = new[] { Path.Combine(projectDirectory, "User", "I18n") }
+            .Concat(extraDirectories.Select(Path.GetFullPath))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(directory => Path.Combine(directory, "Log"))
+            .Where(Directory.Exists)
+            .SelectMany(directory => Directory
+                .EnumerateFiles(directory, "*.json", SearchOption.TopDirectoryOnly)
+                .Where(path => !Path.GetFileName(path).StartsWith("_", StringComparison.Ordinal))
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase))
+            .ToArray();
+
+        var logKeySet = logKeys.ToHashSet(StringComparer.Ordinal);
+        return logFiles
+            .Select(path => CreatePlan(path, logKeys, logKeySet, addOnly))
+            .ToArray();
+    }
+
+    /// <summary>
+    /// 检查日志翻译的占位符：非空译文的占位符名称必须与中文模板一致，否则运行时会放弃该译文。
+    /// </summary>
+    /// <param name="plan">日志翻译文件的同步计划，检查同步后的内容。</param>
+    /// <returns>不一致的中文模板。</returns>
+    public static IReadOnlyList<string> FindPlaceholderMismatches(LanguageFilePlan plan)
+    {
+        var root = ParseLanguageFile(plan.FilePath, plan.UpdatedContent);
+        return root.Properties()
+            .Where(property => property.Value.ToString() is { Length: > 0 } translation
+                               && !GetPlaceholders(property.Name).SetEquals(GetPlaceholders(translation)))
+            .Select(property => property.Name)
+            .ToArray();
+    }
+
+    /// <summary>
+    /// 取出 Serilog 模板中的占位符名称（忽略 @、$ 前缀和格式），{{ }} 为转义的花括号。
+    /// </summary>
+    private static HashSet<string> GetPlaceholders(string template)
+    {
+        var text = template.Replace("{{", string.Empty, StringComparison.Ordinal).Replace("}}", string.Empty, StringComparison.Ordinal);
+        return Regex.Matches(text, @"\{[@$]?(?<name>[^{}:,]+)[^{}]*\}", RegexOptions.CultureInvariant)
+            .Select(match => match.Groups["name"].Value.Trim())
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     /// <summary>

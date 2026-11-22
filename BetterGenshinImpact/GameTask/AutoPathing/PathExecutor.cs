@@ -884,7 +884,7 @@ public partial class PathExecutor
                         }
                         else
                         {
-                            Logger.LogWarning($"距离过远（{position.X},{position.Y}）->（{waypoint.X},{waypoint.Y}）={distance}，重试多次后仍然失败，放弃此路径点！");
+                            Logger.LogWarning("距离过远（{X},{Y}）->（{TargetX},{TargetY}）={Distance}，重试多次后仍然失败，放弃此路径点！", position.X, position.Y, waypoint.X, waypoint.Y, distance);
                             throw new HandledException("目标距离过远，可能是当前点位无法识别，放弃此路径！");
                         }
                     }
@@ -893,13 +893,13 @@ public partial class PathExecutor
                         // 取余减少日志输出频率
                         if (distanceTooFarRetryCount % 5 == 0)
                         {
-                            Logger.LogWarning($"距离过远（{position.X},{position.Y}）->（{waypoint.X},{waypoint.Y}）={distance}，重试");
+                            Logger.LogWarning("距离过远（{X},{Y}）->（{TargetX},{TargetY}）={Distance}，重试", position.X, position.Y, waypoint.X, waypoint.Y, distance);
                         }
                         // 取余减少判断频率
                         if (distanceTooFarRetryCount % 10 == 0)
                         {
                             await ResolveAnomalies(screen);
-                            Logger.LogInformation($"重置到上次正确识别的坐标 ({prevNotTooFarPosition.X},{prevNotTooFarPosition.Y})");
+                            Logger.LogInformation("重置到上次正确识别的坐标 ({X},{Y})", prevNotTooFarPosition.X, prevNotTooFarPosition.Y);
                             Navigation.SetPrevPosition(prevNotTooFarPosition.X, prevNotTooFarPosition.Y);
                             // 淡入淡出特效
                             await _runtime.Delay(500, ct);

@@ -16,6 +16,7 @@ using BetterGenshinImpact.ViewModel.Pages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Microsoft.Web.WebView2.Core;
+using BetterGenshinImpact.Service.I18n;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1323,7 +1324,7 @@ public partial class ScriptRepoUpdater : Singleton<ScriptRepoUpdater>
         GitProxy.Apply(options.FetchOptions.ProxyOptions, AppProxy, repoUrl);
         options.FetchOptions.OnTransferProgress = progress =>
         {
-            onCheckoutProgress?.Invoke($"拉取对象 {progress.ReceivedObjects}/{progress.TotalObjects}", progress.ReceivedObjects, progress.TotalObjects);
+            onCheckoutProgress?.Invoke(string.Format(I18nService.Instance.Translate("拉取对象 {0}/{1}"), progress.ReceivedObjects, progress.TotalObjects), progress.ReceivedObjects, progress.TotalObjects);
             return true;
         };
         // 克隆仓库
@@ -1365,7 +1366,7 @@ public partial class ScriptRepoUpdater : Singleton<ScriptRepoUpdater>
                 CredentialsProvider = CreateCredentialsHandler(), // 添加凭据处理器
                 OnTransferProgress = progress =>
                 {
-                    onCheckoutProgress?.Invoke($"拉取对象 {progress.ReceivedObjects}/{progress.TotalObjects}", progress.ReceivedObjects, progress.TotalObjects);
+                    onCheckoutProgress?.Invoke(string.Format(I18nService.Instance.Translate("拉取对象 {0}/{1}"), progress.ReceivedObjects, progress.TotalObjects), progress.ReceivedObjects, progress.TotalObjects);
                     return !ct.IsCancellationRequested;
                 }
             };
@@ -2980,6 +2981,13 @@ public partial class ScriptRepoUpdater : Singleton<ScriptRepoUpdater>
         UpdateSubscribedScriptPaths();
         if (_webWindow is not { IsVisible: true })
         {
+            // 仓库网页由发布流程单独打包（bettergi-script-web），本地编译的版本没有，直接打开只会显示黑屏
+            if (!File.Exists(Global.Absolute(@"Assets\Web\ScriptRepo\index.html")))
+            {
+                _ = ThemedMessageBox.WarningAsync(I18nService.Instance.Translate("未找到脚本仓库网页（Assets/Web/ScriptRepo）。该网页随正式发布版本打包，自行编译的版本需要从正式版复制此目录。"));
+                return;
+            }
+
             var scriptConfig = Config.ScriptConfig;
 
             // 计算宽高（默认0.7屏幕宽高）

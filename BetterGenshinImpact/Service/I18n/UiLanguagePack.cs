@@ -8,7 +8,12 @@ namespace BetterGenshinImpact.Service.I18n;
 /// <param name="Code">语言代码，如 it。</param>
 /// <param name="DisplayName">显示名称，如 Italiano。</param>
 /// <param name="Translations">翻译：Key 为简体中文原文，值为译文。</param>
-public sealed record UiLanguagePack(string Code, string DisplayName, IReadOnlyDictionary<string, string> Translations);
+/// <param name="LogTranslations">日志模板翻译（可选），Key 为中文日志模板，只用于日志遮罩显示。</param>
+public sealed record UiLanguagePack(
+    string Code,
+    string DisplayName,
+    IReadOnlyDictionary<string, string> Translations,
+    IReadOnlyDictionary<string, string>? LogTranslations = null);
 
 /// <summary>
 /// 界面语言下拉框中的一项。

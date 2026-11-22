@@ -6,6 +6,8 @@ using BetterGenshinImpact.GameTask.Common.Map;
 using BetterGenshinImpact.View.Controls.Webview;
 using BetterGenshinImpact.ViewModel.Pages;
 using Microsoft.Extensions.Logging;
+using BetterGenshinImpact.Service.I18n;
+using BetterGenshinImpact.View.Windows;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -166,9 +168,17 @@ public class PathRecorder : Singleton<PathRecorder>
     {
         if (_webWindow is not { IsVisible: true })
         {
+            var htmlPath = Global.Absolute(@"Assets\Map\Editor\index.html");
+            // 编辑器网页由发布流程单独打包（bettergi-map），本地编译的版本没有，直接打开只会显示空白
+            if (!File.Exists(htmlPath))
+            {
+                _ = ThemedMessageBox.WarningAsync(I18nService.Instance.Translate("未找到地图路径点编辑器网页（Assets/Map/Editor）。该网页随正式发布版本打包，自行编译的版本需要从正式版复制此目录。"));
+                return;
+            }
+
             _webWindow = new WebpageWindow
             {
-                Title = "地图路径点编辑器",
+                Title = I18nService.Instance.Translate("地图路径点编辑器"),
                 Width = 1366,
                 Height = 768,
                 // Owner = Application.Current.MainWindow,
@@ -177,7 +187,6 @@ public class PathRecorder : Singleton<PathRecorder>
             _webWindow.Closed += (s, e) => _webWindow = null;
             _webWindow.Panel!.DownloadFolderPath = MapPathingViewModel.PathJsonPath;
 
-            var htmlPath = Global.Absolute(@"Assets\Map\Editor\index.html");
             var uri = new UriBuilder(htmlPath);
             var query = System.Web.HttpUtility.ParseQueryString(string.Empty);
             query["map"] = mapName;

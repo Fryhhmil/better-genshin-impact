@@ -39,6 +39,7 @@ using BetterGenshinImpact.Pulonia.Executors;
 using BetterGenshinImpact.Pulonia.Remote;
 using BetterGenshinImpact.Pulonia.Services;
 using BetterGenshinImpact.Service;
+using BetterGenshinImpact.Service.HoYoLab;
 using BetterGenshinImpact.Service.AccountRecords;
 using BetterGenshinImpact.Service.ChildSession;
 using BetterGenshinImpact.Service.ExternalAccess;
@@ -152,12 +153,13 @@ public partial class App : Application
                     new ExternalLogSink(externalLogHub, instanceIdentity),
                     LogEventLevel.Debug);
                 // 日志遮罩输出：仅当“遮罩启用且日志框可见”时才真正写入，隐藏时避免不必要的 UI 开销（#3161）。
+                // 只有遮罩中的日志翻译成界面语言（User/I18n/Log/<语言>.json）；日志文件保持中文，供日志分析和问题反馈使用。
                 // 条件改为运行时每次写入时动态判断，因此启动后通过快捷键切换 ShowLogBox 也能即时恢复日志（#3357）。
                 loggerConfiguration.WriteTo.Sink(
                     new ConditionalLogEventSink(
                         new LoggerConfiguration()
                             .Filter.ByIncludingOnly(QuestVoiceLog.IsOverlayVisible)
-                            .WriteTo.Sink(new BoundedRichTextBoxSink(richTextBox), LogEventLevel.Information)
+                            .WriteTo.Sink(new BoundedRichTextBoxSink(richTextBox, transform: new LogEventTranslator(I18nService.Instance).Translate), LogEventLevel.Information)
                             .CreateLogger(),
                         () => all.MaskWindowConfig is { MaskEnabled: true, ShowLogBox: true }),
                     LogEventLevel.Information);
@@ -247,7 +249,7 @@ public partial class App : Application
                 // 窗口、任务栏、Alt+Tab 与托盘共用同一份实例视觉身份。
                 services.AddSingleton(_ => InstanceVisualIdentity.Create(
                     instanceContext,
-                    $"BetterGI · 更好的原神 · {Global.Version}{(RuntimeHelper.IsDebug ? " · Dev" : string.Empty)}"));
+                    $"BetterGI · {I18nService.Instance.Translate("更好的原神")} · {Global.Version}{(RuntimeHelper.IsDebug ? " · Dev" : string.Empty)}"));
                 // 独立任务：启动时扫描主程序集中带 [SoloTaskInfo] 的任务类
                 services.AddSingleton(_ => new SoloTaskRegistry([typeof(App).Assembly]));
                 // 可插拔机制：扫描主程序集中的可插拔能力和内置实现，把每个可插拔能力接口注册为代理；
@@ -502,6 +504,8 @@ public partial class App : Application
                 services.AddSingleton<IMihoyoMapApiService, MihoyoMapApiService>();
                 services.AddSingleton<IKongyingTavernApiService, KongyingTavernApiService>();
                 services.AddSingleton<IHoYoLabMapApiService, HoYoLabMapApiService>();
+                services.AddSingleton<HoYoLabMarkApiService>(sp => new HoYoLabMarkApiService(sp.GetRequiredService<IHttpClientFactory>()));
+                services.AddSingleton<HoYoLabAccountService>(_ => new HoYoLabAccountService());
                 services.AddSingleton<IMaskMapPointService, MaskMapPointService>();
 
                 services.AddSingleton(TimeProvider.System);
@@ -510,7 +514,7 @@ public partial class App : Application
                 // Configuration
                 //services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));
 
-                I18N.Culture = new CultureInfo("zh-Hans"); // #1846
+                // #1846：Wpf.Ui.Violeta 控件库文案语言（I18N.Culture）改由 I18nService.ChangeLanguage 按界面语言设置。
             }
         )
         .Build();
