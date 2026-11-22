@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using BetterGenshinImpact.Core.Config;
+using BetterGenshinImpact.Core.Input.Backends.Gamepad;
+using BetterGenshinImpact.Service.I18n;
 using BetterGenshinImpact.GameTask.AutoPick;
 using BetterGenshinImpact.GameTask.AutoSkip.Assets;
 using BetterGenshinImpact.GameTask.AutoSkip.Audio;
@@ -41,6 +43,15 @@ public partial class TriggerSettingsPageViewModel : ViewModel
             { nameof(PictureSourceType.CaptureLoop), "60帧模式" },
             { nameof(PictureSourceType.TriggerDispatcher), "截图器供图" }
         };
+
+    /// <summary>
+    /// 虚拟手柄确认键选项（值为显示文本）
+    /// </summary>
+    public Dictionary<GamepadConfirmButton, string> GamepadConfirmButtonDict { get; } = new()
+    {
+        { GamepadConfirmButton.Circle, I18nService.Instance.Translate("○ 圆圈") },
+        { GamepadConfirmButton.Cross, I18nService.Instance.Translate("✕ 叉") },
+    };
 
     public AllConfig Config { get; set; }
 
