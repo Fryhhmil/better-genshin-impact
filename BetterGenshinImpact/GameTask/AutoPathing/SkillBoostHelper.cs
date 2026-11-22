@@ -494,11 +494,11 @@ public partial class PathExecutor
                         else
                         {
                             state.PendingApproach = false;
-                            var approachEOnCd = await AutoFightSkill.AvatarSkillAsync(Logger, avatar, false, 2, ct);
+                            var approachEOnCd = await AutoFightSkill.AvatarSkillAsync(_runtime, Logger, avatar, false, 2, ct);
                             if (approachEOnCd)
                             {
                                 InputHub.Foreground.SimulateAction(GIActions.MoveForward, KeyType.KeyUp);
-                                await Delay(300, ct);
+                                await _runtime.Delay(300, ct);
                             }
 
                             // 接近节点时若仍在滑翔，下落攻击快速落在航点上，
@@ -542,7 +542,7 @@ public partial class PathExecutor
 
                     waypoint.MoveMode = MoveModeEnum.Run.Code;
 
-                    await Delay(300, ct);
+                    await _runtime.Delay(300, ct);
                     // 一段 E 能跑多远由夜魂值决定：粉色夜魂条填充充足 = 仍在夜魂疾冲中，继续跑；
                     // 填充降到 VaresaNextSkillPixels 以下 = 这一段消耗得差不多了，才接第二段 E。
                     // 复用本帧截图，不额外截屏；能进到这个块本身就说明还有路程（distance > 50 门槛）。
@@ -568,9 +568,9 @@ public partial class PathExecutor
                         {
                             _lastVaresaSkillTime = DateTime.UtcNow;
                             InputHub.Foreground.SimulateAction(GIActions.ElementalSkill, KeyType.KeyDown);
-                            await Delay(300, ct);
+                            await _runtime.Delay(300, ct);
                             InputHub.Foreground.SimulateAction(GIActions.ElementalSkill, KeyType.KeyUp);
-                            await Delay(200, ct);
+                            await _runtime.Delay(200, ct);
                             avatar.LastSkillTime = DateTime.UtcNow;
                             state.VaresaLastSkillDistance = distance;
                             state.VaresaNightsoulSeen = false; // 等下一段夜魂条出现，再按 800 阈值判下一段
@@ -1542,8 +1542,8 @@ public partial class PathExecutor
     /// </summary>
     private int CountVaresaECharges()
     {
-        using var region = CaptureToRectArea();
-        var s = TaskContext.Instance().SystemInfo.AssetScale;
+        using var region = _runtime.CaptureToRectArea();
+        var s = _runtime.SystemInfo.AssetScale;
         // 两个充能点中心约 (1676,953)、(1691,953)，各约 10px 宽；
         // 取覆盖两者的横条 (1666,944) 40×18，右边缘距画面右边 214、下边缘距底边 118。
         const int rightMargin1080 = 214;
@@ -1589,7 +1589,7 @@ public partial class PathExecutor
     /// </summary>
     private int CountVaresaNightsoulPixels(ImageRegion screen)
     {
-        var s = TaskContext.Instance().SystemInfo.AssetScale;
+        var s = _runtime.SystemInfo.AssetScale;
         // 以 BGI 自身截图校准：夜魂条是 "(" 形弧线，会随角色移动上下漂移约 60px，
         // 实测纵向分布约 y 420..660、横向 x 785..845，中心相对画面中心约 (-134,-40)。
         // ROI 取 x=791..861、y=420..660：纵向完整覆盖漂移范围，右边缘 861 离角色身上的粉色（x870+）仍有 9px 余量；
