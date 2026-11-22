@@ -21,6 +21,7 @@ public class GamepadUiRecognitionTests
     [Theory]
     [InlineData("talk-controller.png")]
     [InlineData("talk-controller-option.png")]
+    [InlineData("talk-controller-ds4.png")]
     public void TalkScreensAreTalkNotBigMap(string file)
     {
         using var region = Load(file);

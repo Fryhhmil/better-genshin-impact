@@ -20,8 +20,7 @@
       "type": "TemplateMatch",
       "template": "talk_bar_gamepad.png",
       "roi": "rect(70 * s, 965 * s, 160 * s, 85 * s)",
-      "useBinaryMatch": true,
-      "binaryThreshold": 200,
+      "threshold": 0.75,
       "draw": false
     },
     "PlayingText": {
