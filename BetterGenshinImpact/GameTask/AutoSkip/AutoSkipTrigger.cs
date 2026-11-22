@@ -57,6 +57,11 @@ public partial class AutoSkipTrigger : ITaskTrigger
     public bool UseBackgroundOperation { get; private set; }
 
     public bool IsUseInteractionKey { get; set; } = false;
+
+    /// <summary>
+    /// 是否处于手柄模式（虚拟手柄后端）：游戏忽略键鼠，只能用按键方式跳过对话和选择选项
+    /// </summary>
+    private static bool IsGamepadMode => InputHub.Backend.Kind == InputBackendKind.Gamepad;
     
     private const int PlayingFlagDisappearDelaySeconds = 10; // 播放标识消失后继续识别的秒数
     private const int PageCloseRecognitionDelayMilliseconds = 200;
@@ -323,7 +328,8 @@ public partial class AutoSkipTrigger : ITaskTrigger
         if (isPlaying)
         {
             _prevPlayingTime = DateTime.Now;
-            if (_config.QuicklySkipConversationsEnabled)
+            // 手柄模式下推进对话的确认键也会选中当前选项：有选项时交给下面的选项选择处理
+            if (_config.QuicklySkipConversationsEnabled && !(IsGamepadMode && HasDialogueOption(content.CaptureRectArea)))
             {
                 if (_config.BeforeClickConfirmDelay > 0)
                 {
@@ -342,7 +348,7 @@ public partial class AutoSkipTrigger : ITaskTrigger
 
             // 对话选项选择
             bool hasOption;
-            if (UseBackgroundOperation || IsUseInteractionKey)
+            if (UseBackgroundOperation || IsUseInteractionKey || IsGamepadMode)
             {
                 hasOption = ChatOptionChooseUseKey(content.CaptureRectArea);
             }
@@ -410,7 +416,12 @@ public partial class AutoSkipTrigger : ITaskTrigger
             var rate = blackCount * 1d / (grayMat.Width * grayMat.Height);
             if (rate is >= 0.5 and < 0.98999)
             {
-                if (UseBackgroundOperation)
+                if (IsGamepadMode)
+                {
+                    // 手柄模式下鼠标无效，用确认键推进黑屏剧情
+                    InputHub.Background.SimulateAction(GIActions.PickUpOrInteract);
+                }
+                else if (UseBackgroundOperation)
                 {
                     InputHub.Background.Mouse.LeftButtonClick();
                 }
@@ -614,6 +625,31 @@ public partial class AutoSkipTrigger : ITaskTrigger
     /// </summary>
     /// <param name="region"></param>
     /// <returns></returns>
+    /// <summary>
+    /// 手柄模式选择选项：数出屏幕上的选项，按方向键下移动到目标选项后确认（交互键由手柄后端映射为确认键）
+    /// </summary>
+    /// <param name="region">截图区域</param>
+    /// <param name="confirmKey">交互键</param>
+    private void ChatOptionChooseUseGamepad(ImageRegion region, User32.VK confirmKey)
+    {
+        var options = region.FindMulti(GetRecognitionObject("OptionIcon", region));
+        var optionCount = options.Count;
+        foreach (var option in options)
+        {
+            option.Dispose();
+        }
+
+        var downPresses = GamepadOptionPlanner.DownPresses(optionCount, last: !_config.IsClickFirstChatOption() && !_config.IsClickRandomChatOption(),
+            random: _config.IsClickRandomChatOption(), Random.Shared);
+        for (var i = 0; i < downPresses; i++)
+        {
+            InputHub.Background.Keyboard.KeyPress(User32.VK.VK_S);
+            Thread.Sleep(150);
+        }
+
+        InputHub.Background.Keyboard.KeyPress(confirmKey);
+    }
+
     private bool ChatOptionChooseUseKey(ImageRegion region)
     {
         if (_config.IsClickNoneChatOption())
@@ -638,6 +674,13 @@ public partial class AutoSkipTrigger : ITaskTrigger
             }
 
             var fKey = AutoPickAssets.Get(region, _allConfig.AutoPickConfig.PickKey).PickVk;
+            if (IsGamepadMode)
+            {
+                ChatOptionChooseUseGamepad(region, fKey);
+                AutoSkipLog("手柄选择选项");
+                return true;
+            }
+
             if (_config.IsClickFirstChatOption())
             {
                 InputHub.Background.Keyboard.KeyPress(fKey);
