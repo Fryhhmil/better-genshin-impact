@@ -16,6 +16,14 @@
       "roi": "rect(0, 0, cw / 3, ch / 8)",
       "draw": true
     },
+    "TalkBarGamepad": {
+      "type": "TemplateMatch",
+      "template": "talk_bar_gamepad.png",
+      "roi": "rect(70 * s, 965 * s, 160 * s, 85 * s)",
+      "useBinaryMatch": true,
+      "binaryThreshold": 200,
+      "draw": false
+    },
     "PlayingText": {
       "type": "OcrMatch",
       "roi": "rect(100 * s, 35 * s, 85 * s, 35 * s)",

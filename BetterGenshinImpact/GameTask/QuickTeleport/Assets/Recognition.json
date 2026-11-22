@@ -26,6 +26,14 @@
       "roi": "rect(25 * s, 990 * s, 58 * s, 62 * s)",
       "draw": false
     },
+    "MapSettingsButtonGamepad": {
+      "type": "TemplateMatch",
+      "template": "MapSettingsButtonGamepad.png",
+      "roi": "rect(100 * s, 960 * s, 110 * s, 95 * s)",
+      "useBinaryMatch": true,
+      "binaryThreshold": 200,
+      "draw": false
+    },
     "MapChoose": {
       "type": "TemplateMatch",
       "template": "MapChoose.png",

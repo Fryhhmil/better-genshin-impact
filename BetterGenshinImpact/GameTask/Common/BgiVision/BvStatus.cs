@@ -208,7 +208,14 @@ public static partial class Bv
         }
 
         using var settingsRa = captureRa.Find(RecognitionAssets.Get("QuickTeleport", "MapSettingsButton", captureRa));
-        return settingsRa.IsExist();
+        if (settingsRa.IsExist())
+        {
+            return true;
+        }
+
+        // 手柄操作模式：左下角的设置按钮
+        using var gamepadRa = captureRa.Find(RecognitionAssets.Get("QuickTeleport", "MapSettingsButtonGamepad", captureRa));
+        return gamepadRa.IsExist();
     }
 
     /// <summary>
@@ -349,7 +356,14 @@ public static partial class Bv
     public static bool IsInTalkUi(ImageRegion captureRa)
     {
         using var ra = captureRa.Find(RecognitionAssets.Get("AutoSkip", "DisabledUiButton", captureRa.Width, captureRa.Height));
-        return ra.IsExist();
+        if (ra.IsExist())
+        {
+            return true;
+        }
+
+        // 手柄操作模式：对话界面左下角的按钮栏
+        using var gamepadRa = captureRa.Find(RecognitionAssets.Get("AutoSkip", "TalkBarGamepad", captureRa.Width, captureRa.Height));
+        return gamepadRa.IsExist();
     }
 
     /// <summary>
