@@ -58,7 +58,7 @@ Escolha de opções por texto/cor no modo controle (prioridade de opções laran
 ### Controle virtual (`GamepadInputBackend`)
 
 - Usar o pacote `Nefarius.ViGEm.Client` (testado na versão 1.21.256).
-- Ao anexar o runtime com a opção ligada, testar o driver criando o `ViGEmClient` (decisão minha). Se funcionar, anexar o backend Gamepad; o DualShock 4 é criado e conectado na primeira vez que for apertar algo e fica conectado até o backend ser descartado (fim do runtime ou opção desligada).
+- Ao anexar o runtime com a opção ligada, testar o driver criando o `ViGEmClient` (decisão minha). Se funcionar, anexar o backend Gamepad; o DualShock 4 é criado e conectado já no bind (implementação: conectar cedo evita perder o primeiro aperto enquanto o jogo reconhece o controle novo) e fica conectado até o backend ser descartado (fim do runtime ou opção desligada).
 - Se o driver faltar (exceção ao criar o `ViGEmClient`): avisar **uma vez** no log, com o link `https://github.com/nefarius/ViGEmBus/releases`, e continuar com o backend Win32, sem lançar exceção. As detecções (inclusive o mapa sobreposto) continuam funcionando; só as ações não chegam ao jogo, já que no modo controle ele ignora o teclado.
 - Apertos: botão para baixo, ~100–150 ms, botão para cima. Os testes funcionaram com 300 ms; vale manter um intervalo seguro, por causa dos 30 fps.
 - Mapeamento mínimo para o escopo:
@@ -70,14 +70,14 @@ Escolha de opções por texto/cor no modo controle (prioridade de opções laran
 
 ### Detecção do diálogo
 
-- Nova imagem de referência do **olho riscado da barra de baixo** da interface de controle (visível nas capturas: ~x 255–290, y 990–1025 em 1920×1080), com ROI na faixa inferior esquerda (algo como `rect(0, ch * 0.85, cw / 4, ch * 0.15)`).
+- Nova imagem de referência da **barra de baixo** da interface de controle. Implementação: os ícones sólidos do touchpad + lista (~x 104–184, y 995–1021), porque o olho riscado é semitransparente; comparação binária (`useBinaryMatch`, limiar 200), porque o fundo varia.
 - `Bv.IsInTalkUi` passa a retornar verdadeiro se achar o ícone do teclado **ou** o do controle. As duas checagens rodam sempre, porque são baratas e evitam depender da opção.
 - **Opções de diálogo no modo controle:** a primeira opção já vem selecionada, então "primeira" = só confirmar. Para "última"/"aleatória", **contar as opções na tela** (ícones de opção, `FindMulti`) e descer com ↓ até a desejada antes de confirmar (decisão minha). Assim não depende de o ↑ dar a volta para a última, como faz hoje o `ChatOptionChooseUseKey` com W, o que não foi testado no controle.
 - O ícone de opção do diálogo (`OptionIcon`) e o triângulo do fim da fala provavelmente continuam iguais; o builder deve conferir nas capturas e, se não forem, criar a variante de controle.
 
 ### Detecção do mapa grande
 
-- Nova imagem de referência estável da interface de controle no mapa. Candidatas: a **engrenagem** do canto inferior esquerdo (~x 140–170, y 990–1025) ou a **barra de zoom sem +/−** (~x 100–115, y 475–605).
+- Nova imagem de referência estável da interface de controle no mapa. Implementação: a **engrenagem** do canto inferior esquerdo (~x 136–170, y 993–1023), com comparação binária.
 - `Bv.IsInBigMapUi` aceita as do teclado **ou** a do controle.
 
 ### Imagens de referência
