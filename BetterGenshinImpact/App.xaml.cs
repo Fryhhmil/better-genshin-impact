@@ -153,12 +153,13 @@ public partial class App : Application
                     new ExternalLogSink(externalLogHub, instanceIdentity),
                     LogEventLevel.Debug);
                 // 日志遮罩输出：仅当“遮罩启用且日志框可见”时才真正写入，隐藏时避免不必要的 UI 开销（#3161）。
+                // 只有遮罩中的日志翻译成界面语言（User/I18n/Log/<语言>.json）；日志文件保持中文，供日志分析和问题反馈使用。
                 // 条件改为运行时每次写入时动态判断，因此启动后通过快捷键切换 ShowLogBox 也能即时恢复日志（#3357）。
                 loggerConfiguration.WriteTo.Sink(
                     new ConditionalLogEventSink(
                         new LoggerConfiguration()
                             .Filter.ByIncludingOnly(QuestVoiceLog.IsOverlayVisible)
-                            .WriteTo.Sink(new BoundedRichTextBoxSink(richTextBox), LogEventLevel.Information)
+                            .WriteTo.Sink(new BoundedRichTextBoxSink(richTextBox, transform: new LogEventTranslator(I18nService.Instance).Translate), LogEventLevel.Information)
                             .CreateLogger(),
                         () => all.MaskWindowConfig is { MaskEnabled: true, ShowLogBox: true }),
                     LogEventLevel.Information);

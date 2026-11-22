@@ -23,9 +23,12 @@ internal static class Program
 
             var projectDirectory = ResolveProjectDirectory(options.ProjectDirectory);
             var scanResult = I18nScanner.Scan(projectDirectory);
-            var plans = I18nJsonSynchronizer.CreatePlans(projectDirectory, options.ExtraI18nDirectories, scanResult.Keys, options.AddOnly);
+            var uiPlans = I18nJsonSynchronizer.CreatePlans(projectDirectory, options.ExtraI18nDirectories, scanResult.Keys, options.AddOnly);
+            // 日志翻译文件（各语言目录下的 Log 子目录）按扫描出的日志模板同步
+            var logPlans = I18nJsonSynchronizer.CreateLogPlans(projectDirectory, options.ExtraI18nDirectories, scanResult.LogKeys, options.AddOnly);
+            var plans = uiPlans.Concat(logPlans).ToArray();
 
-            Console.WriteLine($"已扫描 {scanResult.XamlFileCount} 个 XAML 文件和 {scanResult.CodeFileCount} 个 C# 文件，发现 {scanResult.Keys.Count} 个 i18n Key。");
+            Console.WriteLine($"已扫描 {scanResult.XamlFileCount} 个 XAML 文件和 {scanResult.CodeFileCount} 个 C# 文件，发现 {scanResult.Keys.Count} 个 i18n Key、{scanResult.LogKeys.Count} 个日志模板。");
             Console.WriteLine(options.AddOnly ? "模式：只补充，保留废弃 Key。" : "模式：补充并删除废弃 Key。" );
 
             foreach (var plan in plans)
@@ -36,9 +39,26 @@ internal static class Program
                     (plan.RequiresWrite ? "。" : "，无需修改。"));
             }
 
+            // 日志译文的占位符必须与中文模板一致
+            var placeholderErrorCount = 0;
+            foreach (var plan in logPlans)
+            {
+                foreach (var key in I18nJsonSynchronizer.FindPlaceholderMismatches(plan))
+                {
+                    placeholderErrorCount++;
+                    Console.Error.WriteLine($"{Path.GetFileName(plan.FilePath)}：译文占位符与模板不一致：{key}");
+                }
+            }
+
             var changedPlans = plans.Where(plan => plan.RequiresWrite).ToArray();
             if (options.Check)
             {
+                if (placeholderErrorCount > 0)
+                {
+                    Console.Error.WriteLine($"有 {placeholderErrorCount} 条日志译文的占位符与模板不一致。");
+                    return OutOfSyncExitCode;
+                }
+
                 if (changedPlans.Length == 0)
                 {
                     Console.WriteLine("多语言文件已同步。");

@@ -3,7 +3,14 @@ using System.Xml.Linq;
 
 namespace BetterGenshinImpact.I18nSync;
 
-internal sealed record I18nScanResult(IReadOnlyList<string> Keys, int XamlFileCount, int CodeFileCount);
+/// <summary>
+/// 扫描结果。
+/// </summary>
+/// <param name="Keys">界面文案 Key。</param>
+/// <param name="LogKeys">日志模板 Key（Information 及以上级别、含中文的字符串字面量模板），只用于日志遮罩翻译。</param>
+/// <param name="XamlFileCount">扫描的 XAML 文件数。</param>
+/// <param name="CodeFileCount">扫描的 C# 文件数。</param>
+internal sealed record I18nScanResult(IReadOnlyList<string> Keys, IReadOnlyList<string> LogKeys, int XamlFileCount, int CodeFileCount);
 
 internal static partial class I18nScanner
 {
@@ -22,10 +29,32 @@ internal static partial class I18nScanner
     [GeneratedRegex(@"I18nService\.Key\(\s*""(?<key>[^""]+)""\s*\)", RegexOptions.CultureInvariant)]
     private static partial Regex CodeDataKeyRegex();
 
+    /// <summary>
+    /// 匹配 LogInformation/LogWarning/LogError/LogCritical 的字符串字面量模板，可带一个异常参数，
+    /// 模板后必须紧跟逗号或右括号（排除字符串拼接）；插值字符串、变量模板无法作为 Key，不匹配。
+    /// </summary>
+    [GeneratedRegex(@"\.Log(?:Information|Warning|Error|Critical)\(\s*(?:[A-Za-z_][\w.?]*\s*,\s*)?""(?<key>(?:[^""\\\r\n]|\\.)*)""(?=\s*[,)])", RegexOptions.CultureInvariant)]
+    private static partial Regex LogTemplateRegex();
+
+    /// <summary>
+    /// 匹配日志模板后紧跟的中文字符串字面量参数，如 LogInformation("→ {Text}", "自动钓鱼，启动！")；
+    /// 运行时这类属性值会整体查日志翻译表。
+    /// </summary>
+    [GeneratedRegex(@"\.Log(?:Information|Warning|Error|Critical)\(\s*(?:[A-Za-z_][\w.?]*\s*,\s*)?""(?:[^""\\\r\n]|\\.)*""\s*,\s*""(?<key>(?:[^""\\\r\n]|\\.)*)""(?=\s*[,)])", RegexOptions.CultureInvariant)]
+    private static partial Regex LogLiteralArgumentRegex();
+
+    /// <summary>
+    /// 是否含中文字符；只收集中文日志模板。
+    /// </summary>
+    [GeneratedRegex(@"[\u4e00-\u9fff]", RegexOptions.CultureInvariant)]
+    private static partial Regex ChineseRegex();
+
     public static I18nScanResult Scan(string projectDirectory)
     {
         var keys = new List<string>();
         var knownKeys = new HashSet<string>(StringComparer.Ordinal);
+        var logKeys = new List<string>();
+        var knownLogKeys = new HashSet<string>(StringComparer.Ordinal);
         var xamlFileCount = 0;
         var codeFileCount = 0;
 
@@ -61,9 +90,11 @@ internal static partial class I18nScanner
             AddMatches(CodeTranslationKeyRegex().Matches(source), keys, knownKeys, normalizeCSharpEscapes: true);
             AddMatches(CodeModelKeyRegex().Matches(source), keys, knownKeys, normalizeCSharpEscapes: true);
             AddMatches(CodeDataKeyRegex().Matches(source), keys, knownKeys, normalizeCSharpEscapes: true);
+            AddMatches(LogTemplateRegex().Matches(source), logKeys, knownLogKeys, normalizeCSharpEscapes: true, requireChinese: true);
+            AddMatches(LogLiteralArgumentRegex().Matches(source), logKeys, knownLogKeys, normalizeCSharpEscapes: true, requireChinese: true);
         }
 
-        return new I18nScanResult(keys, xamlFileCount, codeFileCount);
+        return new I18nScanResult(keys, logKeys, xamlFileCount, codeFileCount);
     }
 
     private static void AddMatches(
@@ -71,7 +102,8 @@ internal static partial class I18nScanner
         ICollection<string> keys,
         ISet<string> knownKeys,
         bool normalizeCSharpEscapes = false,
-        bool normalizeXamlQuotes = false)
+        bool normalizeXamlQuotes = false,
+        bool requireChinese = false)
     {
         foreach (Match match in matches)
         {
@@ -84,6 +116,11 @@ internal static partial class I18nScanner
             if (normalizeCSharpEscapes)
             {
                 key = NormalizeCSharpEscapes(key);
+            }
+
+            if (requireChinese && !ChineseRegex().IsMatch(key))
+            {
+                continue;
             }
 
             if (key.Length > 0 && knownKeys.Add(key))

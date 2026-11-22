@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -72,7 +73,22 @@ internal static partial class PluginLanguageReader
                 throw new InvalidOperationException(string.Format(I18nService.Instance.Translate("界面语言 {0} 的文件无法解析：{1}，{2}"), info.Code, relativePath, e.Message), e);
             }
 
-            packs.Add(new UiLanguagePack(info.Code, info.DisplayName, translations));
+            // 4. 读入日志模板翻译（可选）：语言文件同目录下的 Log/<文件名>，缺失或损坏时只是不翻译日志
+            var logFilePath = Path.Combine(Path.GetDirectoryName(filePath)!, "Log", Path.GetFileName(filePath));
+            IReadOnlyDictionary<string, string>? logTranslations = null;
+            if (File.Exists(logFilePath))
+            {
+                try
+                {
+                    logTranslations = I18nService.ReadTranslationFile(logFilePath);
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine($"读取日志翻译文件 {logFilePath} 失败：{e}");
+                }
+            }
+
+            packs.Add(new UiLanguagePack(info.Code, info.DisplayName, translations, logTranslations));
         }
 
         return packs;

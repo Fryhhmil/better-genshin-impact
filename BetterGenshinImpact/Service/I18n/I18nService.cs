@@ -58,7 +58,7 @@ public sealed class I18nService : INotifyPropertyChanged
     /// <summary>
     /// 当前使用的翻译表，语言或插件语言变化时整体替换。
     /// </summary>
-    private volatile TranslationTable _table = new(null, EmptyTranslations, false);
+    private volatile TranslationTable _table = new(null, EmptyTranslations, null, EmptyTranslations, false);
 
     /// <summary>
     /// 当前可选的语言列表快照。
@@ -192,6 +192,32 @@ public sealed class I18nService : INotifyPropertyChanged
     }
 
     /// <summary>
+    /// 当前语言是否需要翻译日志（简体中文不需要）。日志翻译器据此跳过不必要的处理。
+    /// </summary>
+    public bool TranslatesLogs => !string.Equals(_effectiveLanguage, DefaultLanguage, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// 翻译中文日志模板，只用于日志遮罩显示，日志文件保持中文。
+    /// 1. 生效插件的日志翻译；2. 内置日志翻译文件；3. 繁体中文用 OpenCC 转换；都没有时返回 null。
+    /// </summary>
+    /// <param name="template">Serilog 消息模板原文。</param>
+    public string? TranslateLogTemplate(string template)
+    {
+        var table = _table;
+        if (table.PluginLog is not null && table.PluginLog.TryGetValue(template, out var translation) && !string.IsNullOrWhiteSpace(translation))
+        {
+            return translation;
+        }
+
+        if (table.BuiltinLog.TryGetValue(template, out translation) && !string.IsNullOrWhiteSpace(translation))
+        {
+            return translation;
+        }
+
+        return table.UseTraditionalChinese ? TraditionalChineseConverter.Convert(template) : null;
+    }
+
+    /// <summary>
     /// 读取语言文件：Key 为简体中文原文，值为译文。
     /// </summary>
     /// <param name="filePath">语言文件的绝对路径。</param>
@@ -244,6 +270,8 @@ public sealed class I18nService : INotifyPropertyChanged
         _table = new TranslationTable(
             plugin?.Translations,
             builtin is null ? EmptyTranslations : LoadBuiltinTranslations(builtin.Code),
+            plugin?.LogTranslations,
+            builtin is null ? EmptyTranslations : LoadBuiltinTranslations(Path.Combine("Log", builtin.Code)),
             string.Equals(effective, TraditionalLanguage, StringComparison.OrdinalIgnoreCase));
 
         CultureInfo? culture = null;
@@ -299,10 +327,12 @@ public sealed class I18nService : INotifyPropertyChanged
     /// <summary>
     /// 读取内置语言的翻译。简体中文、繁体中文没有语言文件；读取失败时返回空表，界面显示中文。
     /// </summary>
+    /// <param name="language">语言代码；日志翻译传入 Log\&lt;代码&gt;，读取 User/I18n/Log/&lt;代码&gt;.json。</param>
     private IReadOnlyDictionary<string, string> LoadBuiltinTranslations(string language)
     {
-        if (string.Equals(language, DefaultLanguage, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(language, TraditionalLanguage, StringComparison.OrdinalIgnoreCase))
+        var code = Path.GetFileName(language);
+        if (string.Equals(code, DefaultLanguage, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(code, TraditionalLanguage, StringComparison.OrdinalIgnoreCase))
         {
             return EmptyTranslations;
         }
@@ -338,9 +368,13 @@ public sealed class I18nService : INotifyPropertyChanged
     /// </summary>
     /// <param name="Plugin">生效插件的翻译，没有插件提供当前语言时为 null。</param>
     /// <param name="Builtin">内置语言文件的翻译。</param>
+    /// <param name="PluginLog">生效插件的日志模板翻译，没有时为 null。</param>
+    /// <param name="BuiltinLog">内置日志翻译文件的翻译。</param>
     /// <param name="UseTraditionalChinese">未翻译的条目是否转换为繁体中文。</param>
     private sealed record TranslationTable(
         IReadOnlyDictionary<string, string>? Plugin,
         IReadOnlyDictionary<string, string> Builtin,
+        IReadOnlyDictionary<string, string>? PluginLog,
+        IReadOnlyDictionary<string, string> BuiltinLog,
         bool UseTraditionalChinese);
 }

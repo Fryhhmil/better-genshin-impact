@@ -28,14 +28,17 @@ public sealed class BoundedRichTextBoxSink : ILogEventSink, IDisposable
         "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}", null);
     /// <summary>取消队列等待和在途Dispatcher等待，不阻塞UI释放。</summary>
     private readonly CancellationTokenSource _stop = new();
+    /// <summary>显示前对事件的转换（如翻译成界面语言），在后台泵线程执行；为 null 时原样显示。</summary>
+    private readonly Func<LogEvent, LogEvent>? _transform;
     /// <summary>可重复释放标记。</summary>
     private int _disposed;
     /// <summary>拥有并观察后台泵的终止，不同步等待UI。</summary>
     public Task Completion { get; }
 
     /// <summary>默认最多128条待显示事件，单个UI批次不超过16条。</summary>
-    public BoundedRichTextBoxSink(IRichTextBox target, int capacity = 128, int batchSize = 16)
+    public BoundedRichTextBoxSink(IRichTextBox target, int capacity = 128, int batchSize = 16, Func<LogEvent, LogEvent>? transform = null)
     {
+        _transform = transform;
         ArgumentNullException.ThrowIfNull(target);
         ArgumentOutOfRangeException.ThrowIfLessThan(capacity, 1);
         ArgumentOutOfRangeException.ThrowIfLessThan(batchSize, 1);
@@ -66,7 +69,7 @@ public sealed class BoundedRichTextBoxSink : ILogEventSink, IDisposable
                     try
                     {
                         using var writer = new StringWriter();
-                        _formatter.Format(item, writer);
+                        _formatter.Format(_transform is null ? item : _transform(item), writer);
                         text.Append(writer);
                     }
                     catch (Exception exception) { SelfLog.WriteLine("Overlay log formatting failed: {0}", exception); }
