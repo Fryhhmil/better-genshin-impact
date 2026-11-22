@@ -1,3 +1,4 @@
+using BetterGenshinImpact.Core.Input.Backends.Gamepad;
 using BetterGenshinImpact.GameTask;
 using BetterGenshinImpact.GameTask.AutoDomain;
 using BetterGenshinImpact.GameTask.AutoBoss;
@@ -273,6 +274,11 @@ public partial class AllConfig : ObservableObject
     /// 原神按键绑定配置
     /// </summary>
     public KeyBindingsConfig KeyBindingsConfig { get; set; } = new();
+
+    /// <summary>
+    /// 手柄模式（虚拟手柄）配置
+    /// </summary>
+    public GamepadConfig GamepadConfig { get; set; } = new();
 
     /// <summary>
     /// 其他配置

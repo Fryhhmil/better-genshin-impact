@@ -31,6 +31,24 @@ public abstract class InputChannelBase : IInputChannel, IKeyboardInput, IMouseIn
 
     protected static ILogger Logger => _logger ??= App.GetLogger<InputChannelBase>();
 
+    /// <summary>
+    /// 实例日志。为 null 时使用 <see cref="Logger"/>（来自应用容器）
+    /// </summary>
+    private readonly ILogger? _instanceLogger;
+
+    /// <summary>
+    /// 使用应用容器中的日志
+    /// </summary>
+    protected InputChannelBase()
+    {
+    }
+
+    /// <param name="logger">本通道使用的日志；为 null 时使用应用容器中的日志</param>
+    protected InputChannelBase(ILogger? logger)
+    {
+        _instanceLogger = logger;
+    }
+
     public IKeyboardInput Keyboard => this;
 
     public IMouseInput Mouse => this;
@@ -259,7 +277,7 @@ public abstract class InputChannelBase : IInputChannel, IKeyboardInput, IMouseIn
         }
 
         _lastWarnTicks[operation] = now;
-        Logger.LogWarning("[{Channel}] 不支持的输入操作已忽略：{Operation}", GetType().Name, operation);
+        (_instanceLogger ?? Logger).LogWarning("[{Channel}] 不支持的输入操作已忽略：{Operation}", GetType().Name, operation);
     }
 
     /// <summary>
