@@ -297,4 +297,68 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!--  “叠层”图标（顶部实心菱形 + 两道折线），与地图上其他层点位的角标一致；24×24 坐标  -->
+    <Geometry x:Key="MapMenu.LayersTopGeometry">M12,2.5 L21,7 L12,11.5 L3,7 Z</Geometry>
+    <Geometry x:Key="MapMenu.LayersChevronGeometry">M3,11.5 L12,16 L21,11.5 M3,16 L12,20.5 L21,16</Geometry>
+
+    <!--  层级菜单选项：Tag 为 True 时表示当前选中（金色文字 + 右侧勾）；悬停时叠加浅色  -->
+    <Style x:Key="MapMenu.LayerMenuItem" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Foreground" Value="{StaticResource MapMenu.TextPrimary}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Padding="10,8"
+                            Background="Transparent"
+                            CornerRadius="8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ContentPresenter Grid.Column="0" VerticalAlignment="Center" />
+                            <Path x:Name="Check"
+                                  Grid.Column="1"
+                                  Width="11"
+                                  Height="8"
+                                  Margin="12,0,2,0"
+                                  VerticalAlignment="Center"
+                                  Data="M0,4 L3.6,7.5 L10.5,0.5"
+                                  Stretch="Fill"
+                                  Stroke="{StaticResource MapMenu.TextPrimary}"
+                                  StrokeEndLineCap="Round"
+                                  StrokeLineJoin="Round"
+                                  StrokeStartLineCap="Round"
+                                  StrokeThickness="1.8"
+                                  Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="#14FFFFFF" />
+                        </Trigger>
+                        <Trigger Property="Tag">
+                            <Trigger.Value>
+                                <sys:Boolean>True</sys:Boolean>
+                            </Trigger.Value>
+                            <Setter TargetName="Check" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <!--  选中项的标题与图标为金色（内容通过 Button.Foreground 继承）  -->
+            <Trigger Property="Tag">
+                <Trigger.Value>
+                    <sys:Boolean>True</sys:Boolean>
+                </Trigger.Value>
+                <Setter Property="Foreground" Value="{StaticResource MapMenu.Gold}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
 </ResourceDictionary>

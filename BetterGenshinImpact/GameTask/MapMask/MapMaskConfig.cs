@@ -1,4 +1,5 @@
 using System;
+using BetterGenshinImpact.Model.MaskMap;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Text.Json.Serialization;
 
@@ -37,6 +38,13 @@ public partial class MapMaskConfig : ObservableObject
     /// </summary>
     [ObservableProperty]
     private bool _hideMarkedPoints = false;
+
+    /// <summary>
+    /// 标点层级过滤（全部 / 只显示地面 / 只显示其他层）；只影响显示，同时作用于大地图与小地图
+    /// </summary>
+    [ObservableProperty]
+    [property: JsonConverter(typeof(JsonStringEnumConverter))]
+    private MapPointLayerFilter _layerFilter = MapPointLayerFilter.All;
 
     private MapPointApiProvider _mapPointApiProvider = MapPointApiProvider.MihoyoMap;
 

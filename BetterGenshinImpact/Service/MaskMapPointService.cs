@@ -232,7 +232,9 @@ public sealed class MaskMapPointService : IMaskMapPointService
                     Id = x.Id.ToString(CultureInfo.InvariantCulture),
                     X = x.XPos,
                     Y = x.YPos,
-                    LabelId = x.LabelId.ToString(CultureInfo.InvariantCulture)
+                    LabelId = x.LabelId.ToString(CultureInfo.InvariantCulture),
+                    // icon_sign：0 地面；1 地下（网页地图图标角落的层级角标）；2/3 含义未完全确认，多带 point_group/z_level，按其他层处理
+                    IsOtherLevel = x.IconSign != 0
                 };
 
                 (m.GameX, m.GameY) = GameWebMapCoordinateConverter.MysWebToGame(m.X, m.Y);
@@ -562,6 +564,7 @@ public sealed class MaskMapPointService : IMaskMapPointService
                 X = x,
                 Y = y,
                 LabelId = labelItemId.ToString(CultureInfo.InvariantCulture),
+                IsOtherLevel = marker.Extra?.Underground?.IsUnderground == true,
                 VideoUrls = string.IsNullOrWhiteSpace(marker.VideoPath)
                     ? new List<MaskMapLink>()
                     : new List<MaskMapLink>

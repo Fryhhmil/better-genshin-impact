@@ -127,6 +127,7 @@
                                               PointsSource="{Binding MapPoints}"
                                               LabelsSource="{Binding MapPointLabels}"
                                               HideMarkedPoints="{Binding Config.MapMaskConfig.HideMarkedPoints, Mode=OneWay}"
+                                              LayerFilter="{Binding Config.MapMaskConfig.LayerFilter, Mode=OneWay}"
                                               Viewport="{Binding MiniMapViewport}"
                                               IsHitTestVisible="False">
                     <Canvas.Left>
@@ -712,6 +713,7 @@
                                    PointsSource="{Binding MapPoints}"
                                    LabelsSource="{Binding MapPointLabels}"
                                    HideMarkedPoints="{Binding Config.MapMaskConfig.HideMarkedPoints, Mode=OneWay}"
+                                   LayerFilter="{Binding Config.MapMaskConfig.LayerFilter, Mode=OneWay}"
                                    Viewport="{Binding BigMapViewport}"
                                    PointClickCommand="{Binding PointClickCommand}"
                                    PointRightClickCommand="{Binding PointRightClickCommand}"

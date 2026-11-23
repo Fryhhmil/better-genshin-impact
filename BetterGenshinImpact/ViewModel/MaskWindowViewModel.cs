@@ -145,11 +145,17 @@ namespace BetterGenshinImpact.ViewModel
         public int MapPointTotalCount => MapPoints.Count;
 
         /// <summary>
-        /// 地图上实际可见的点位数：开启“隐藏已收集”时不计已收集的点位
+        /// 地图上实际可见的点位数：开启“隐藏已收集”时不计已收集的点位，且只计符合层级过滤的点位
         /// </summary>
-        public int VisibleMapPointCount => Config.MapMaskConfig.HideMarkedPoints
-            ? MapPoints.Count(x => !x.IsHidden)
-            : MapPoints.Count;
+        public int VisibleMapPointCount
+        {
+            get
+            {
+                var hideMarked = Config.MapMaskConfig.HideMarkedPoints;
+                var layerFilter = Config.MapMaskConfig.LayerFilter;
+                return MapPoints.Count(x => x.IsDrawn(hideMarked, layerFilter));
+            }
+        }
 
         /// <summary>
         /// 已收集的点位数；IsHidden 在载入与标记变化时已同步，无需逐个重新拼接点位键
@@ -854,6 +860,8 @@ namespace BetterGenshinImpact.ViewModel
             if (!value)
             {
                 IsMapPointPickerOpen = false;
+                // 离开大地图时收起层级菜单，下次进入大地图不自动展开
+                IsMapPointLayerMenuOpen = false;
                 PointInfoPopup.Close();
                 return;
             }

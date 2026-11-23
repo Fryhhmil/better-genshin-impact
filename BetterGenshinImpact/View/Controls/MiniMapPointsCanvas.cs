@@ -91,6 +91,25 @@ public sealed class MiniMapPointsCanvas : FrameworkElement
         set => SetValue(HideMarkedPointsProperty, value);
     }
 
+    /// <summary>
+    /// 标点层级过滤（全部 / 只显示地面 / 只显示其他层）
+    /// </summary>
+    public static readonly DependencyProperty LayerFilterProperty =
+        DependencyProperty.Register(
+            nameof(LayerFilter),
+            typeof(MapPointLayerFilter),
+            typeof(MiniMapPointsCanvas),
+            new PropertyMetadata(MapPointLayerFilter.All, (d, _) => ((MiniMapPointsCanvas)d).Refresh()));
+
+    /// <summary>
+    /// 标点层级过滤
+    /// </summary>
+    public MapPointLayerFilter LayerFilter
+    {
+        get => (MapPointLayerFilter)GetValue(LayerFilterProperty);
+        set => SetValue(LayerFilterProperty, value);
+    }
+
     public MiniMapPointsCanvas()
     {
         _children = new VisualCollection(this);
@@ -228,7 +247,7 @@ public sealed class MiniMapPointsCanvas : FrameworkElement
 
         foreach (var point in _allPoints)
         {
-            if (!point.IsDrawn(HideMarkedPoints) || !expandedViewport.Contains(point.ImageX, point.ImageY))
+            if (!point.IsDrawn(HideMarkedPoints, LayerFilter) || !expandedViewport.Contains(point.ImageX, point.ImageY))
             {
                 continue;
             }

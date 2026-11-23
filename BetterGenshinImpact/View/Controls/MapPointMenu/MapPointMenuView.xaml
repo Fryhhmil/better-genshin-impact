@@ -7,6 +7,7 @@
              xmlns:i18n="clr-namespace:BetterGenshinImpact.Service.I18n"
              xmlns:viewModel="clr-namespace:BetterGenshinImpact.ViewModel"
              xmlns:converters="clr-namespace:BetterGenshinImpact.View.Converters"
+             xmlns:model="clr-namespace:BetterGenshinImpact.Model.MaskMap"
              d:DataContext="{d:DesignInstance Type=viewModel:MaskWindowViewModel}"
              d:DesignWidth="1600"
              d:DesignHeight="900"
@@ -1188,6 +1189,132 @@
 
                 </StackPanel>
 
+                <!--  ==================== 层级菜单 ====================  -->
+                <!--  与点位面板一样直接放在遮罩窗口内（不用 Popup，避免切出游戏后仍显示或被其他窗口遮挡）。
+                      子网格按圆形按钮的比例（地球 58 + 间距 12 = 70）把菜单左边对齐到层级按钮；内容按 MapMenuScale 缩放  -->
+                <Grid Grid.Row="0"
+                      Grid.RowSpan="2"
+                      Grid.Column="2"
+                      Grid.ColumnSpan="2"
+                      Visibility="{Binding IsMapPointLayerMenuOpen, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70*" />
+                        <ColumnDefinition Width="1662*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="1"
+                            Width="300"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom"
+                            Padding="6,10,6,6"
+                            Style="{StaticResource MapMenu.GlassBorder}">
+                        <Border.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding MapMenuScale, Mode=OneWay}" ScaleY="{Binding MapMenuScale, Mode=OneWay}" />
+                        </Border.LayoutTransform>
+                        <StackPanel>
+                            <TextBlock Margin="10,0,10,6"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource MapMenu.TextTertiary}"
+                                       Text="{i18n:T 按层级筛选}" />
+
+                            <!--  全部标点  -->
+                            <Button Command="{Binding SetMapPointLayerFilterCommand}"
+                                    Style="{StaticResource MapMenu.LayerMenuItem}"
+                                    Tag="{Binding IsLayerFilterAll, Mode=OneWay}">
+                                <Button.CommandParameter>
+                                    <model:MapPointLayerFilter>All</model:MapPointLayerFilter>
+                                </Button.CommandParameter>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Viewbox Width="18" Height="18" HorizontalAlignment="Left">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Data="{StaticResource MapMenu.LayersTopGeometry}"
+                                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <Path Data="{StaticResource MapMenu.LayersChevronGeometry}"
+                                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeLineJoin="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeThickness="2" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="13" FontWeight="SemiBold" Text="{i18n:T 全部标点}" />
+                                        <TextBlock Margin="0,1,0,0" Style="{StaticResource MapMenu.CaptionText}" Text="{i18n:T 地面与其他层}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+
+                            <!--  只显示地面：只有顶层实心菱形  -->
+                            <Button Command="{Binding SetMapPointLayerFilterCommand}"
+                                    Style="{StaticResource MapMenu.LayerMenuItem}"
+                                    Tag="{Binding IsLayerFilterSurfaceOnly, Mode=OneWay}">
+                                <Button.CommandParameter>
+                                    <model:MapPointLayerFilter>SurfaceOnly</model:MapPointLayerFilter>
+                                </Button.CommandParameter>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Viewbox Width="18" Height="18" HorizontalAlignment="Left">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Data="{StaticResource MapMenu.LayersTopGeometry}"
+                                                  Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                            <Path Data="{StaticResource MapMenu.LayersChevronGeometry}"
+                                                  Opacity="0.3"
+                                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeLineJoin="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeThickness="2" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="13" FontWeight="SemiBold" Text="{i18n:T 只显示地面}" />
+                                        <TextBlock Margin="0,1,0,0" Style="{StaticResource MapMenu.CaptionText}" Text="{i18n:T 隐藏洞穴与上下层}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+
+                            <!--  只显示其他层：向下箭头落在横线上  -->
+                            <Button Command="{Binding SetMapPointLayerFilterCommand}"
+                                    Style="{StaticResource MapMenu.LayerMenuItem}"
+                                    Tag="{Binding IsLayerFilterOtherLevelsOnly, Mode=OneWay}">
+                                <Button.CommandParameter>
+                                    <model:MapPointLayerFilter>OtherLevelsOnly</model:MapPointLayerFilter>
+                                </Button.CommandParameter>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Viewbox Width="18" Height="18" HorizontalAlignment="Left">
+                                        <Canvas Width="24" Height="24">
+                                            <Path Data="M12,3 L12,15.5 M6.5,10.5 L12,16 L17.5,10.5 M4,20.5 L20,20.5"
+                                                  Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                                  StrokeEndLineCap="Round"
+                                                  StrokeLineJoin="Round"
+                                                  StrokeStartLineCap="Round"
+                                                  StrokeThickness="2" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock FontSize="13" FontWeight="SemiBold" Text="{i18n:T 只显示其他层}" />
+                                        <TextBlock Margin="0,1,0,0"
+                                                   Style="{StaticResource MapMenu.CaptionText}"
+                                                   Text="{i18n:T 地下、洞穴、上下层}"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
                 <!--  ==================== 圆形按钮（与旧版相同的外观与位置，避开游戏自带的设置按钮） ====================  -->
                 <!--  地球：打开 / 关闭点位面板；收起时显示已开启类型数量  -->
                 <Viewbox Grid.Row="3"
@@ -1225,12 +1352,14 @@
                     </Grid>
                 </Viewbox>
 
-                <!--  眼睛：临时隐藏全部标点（不保存），开启时金色  -->
+                <!--  眼睛与层级按钮：与地球按钮同尺寸，间距与地球到眼睛相同（12）  -->
                 <Viewbox Grid.Row="3"
                          Grid.Column="2"
                          HorizontalAlignment="Left"
                          VerticalAlignment="Stretch"
                          Stretch="Uniform">
+                <StackPanel Orientation="Horizontal">
+                    <!--  眼睛：临时隐藏全部标点（不保存），开启时金色  -->
                     <Grid Width="58" Height="58">
                         <Border BorderBrush="#77FDF5E4"
                                 BorderThickness="6"
@@ -1257,6 +1386,38 @@
                             </Button>
                         </Border>
                     </Grid>
+
+                    <!--  层级：按地面 / 其他层筛选标点，筛选生效时金色；点击展开上方的层级菜单  -->
+                    <Grid Width="58"
+                          Height="58"
+                          Margin="12,0,0,0">
+                        <Border BorderBrush="#77FDF5E4"
+                                BorderThickness="6"
+                                CornerRadius="29">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="2" Opacity="0.25" ShadowDepth="0" Color="#8C8C8C" />
+                            </Border.Effect>
+                            <Button x:Name="LayerOrbButton"
+                                    Command="{Binding ToggleMapPointLayerMenuCommand}"
+                                    Style="{StaticResource MapMenu.ClassicOrbButton}"
+                                    Tag="{Binding IsMapPointLayerFilterActive, Mode=OneWay}"
+                                    ToolTip="{Binding MapPointLayerFilterToolTip, Mode=OneWay}">
+                                <Viewbox Width="27" Height="27">
+                                    <Canvas Width="24" Height="24">
+                                        <Path Data="{StaticResource MapMenu.LayersTopGeometry}"
+                                              Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                                        <Path Data="{StaticResource MapMenu.LayersChevronGeometry}"
+                                              Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                              StrokeEndLineCap="Round"
+                                              StrokeLineJoin="Round"
+                                              StrokeStartLineCap="Round"
+                                              StrokeThickness="2" />
+                                    </Canvas>
+                                </Viewbox>
+                            </Button>
+                        </Border>
+                    </Grid>
+                </StackPanel>
                 </Viewbox>
             </Grid>
         </Grid>

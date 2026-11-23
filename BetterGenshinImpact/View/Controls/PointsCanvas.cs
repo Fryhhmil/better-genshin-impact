@@ -114,6 +114,25 @@ public class PointsCanvas : FrameworkElement
     }
 
     /// <summary>
+    /// 标点层级过滤（全部 / 只显示地面 / 只显示其他层）
+    /// </summary>
+    public static readonly DependencyProperty LayerFilterProperty =
+        DependencyProperty.Register(
+            nameof(LayerFilter),
+            typeof(MapPointLayerFilter),
+            typeof(PointsCanvas),
+            new PropertyMetadata(MapPointLayerFilter.All, (d, _) => ((PointsCanvas)d).Refresh()));
+
+    /// <summary>
+    /// 标点层级过滤
+    /// </summary>
+    public MapPointLayerFilter LayerFilter
+    {
+        get => (MapPointLayerFilter)GetValue(LayerFilterProperty);
+        set => SetValue(LayerFilterProperty, value);
+    }
+
+    /// <summary>
     /// 点击命令
     /// </summary>
     public ICommand PointClickCommand
@@ -298,7 +317,7 @@ public class PointsCanvas : FrameworkElement
 
             foreach (var point in _allPoints)
             {
-                if (point.IsDrawn(HideMarkedPoints) && expandedViewport.Contains(point.ImageX, point.ImageY))
+                if (point.IsDrawn(HideMarkedPoints, LayerFilter) && expandedViewport.Contains(point.ImageX, point.ImageY))
                 {
                     var localX = (point.ImageX - _viewportRect.X) * scaleX;
                     var localY = (point.ImageY - _viewportRect.Y) * scaleY;
@@ -383,10 +402,106 @@ public class PointsCanvas : FrameworkElement
             dc.DrawEllipse(brush, null, new Point(centerX, centerY), width / 2.0, height / 2.0);
         }
 
+        if (point.IsOtherLevel)
+        {
+            DrawLayerBadge(dc, circleCenter, radius);
+        }
+
         if (point.IsHidden)
         {
             dc.Pop();
         }
+    }
+
+    /// <summary>
+    /// 层级角标底色（网页地图角标的深蓝灰）
+    /// </summary>
+    private static readonly Brush LayerBadgeFill = CreateFrozenBrush(Color.FromRgb(0x2E, 0x35, 0x47));
+
+    /// <summary>
+    /// 层级角标外圈（浅色细边）
+    /// </summary>
+    private static readonly Pen LayerBadgePen = CreateFrozenPen(Color.FromArgb(0xE6, 0xEC, 0xE5, 0xD8), 1.0);
+
+    /// <summary>
+    /// 层级图标颜色（白色）
+    /// </summary>
+    private static readonly Brush LayerIconBrush = CreateFrozenBrush(Color.FromRgb(0xF5, 0xF5, 0xF5));
+
+    /// <summary>
+    /// 在点位右下角绘制层级角标：深色圆底 + 白色“叠层”图标（顶部实心菱形，下方两道折线），参照网页地图的角标
+    /// </summary>
+    /// <param name="dc">绘图上下文</param>
+    /// <param name="center">点位圆心</param>
+    /// <param name="radius">点位半径</param>
+    private static void DrawLayerBadge(DrawingContext dc, Point center, double radius)
+    {
+        var badgeRadius = radius * 0.5;
+        var bc = new Point(center.X + radius * 0.7, center.Y + radius * 0.7);
+        dc.DrawEllipse(LayerBadgeFill, LayerBadgePen, bc, badgeRadius, badgeRadius);
+
+        // 图标尺寸：s 为基准边长，w/h 为菱形半宽/半高
+        var s = badgeRadius * 1.15;
+        var w = s * 0.5;
+        var h = s * 0.25;
+        var topY = bc.Y - s * 0.3;
+
+        // 顶部实心菱形
+        var diamond = new StreamGeometry();
+        using (var ctx = diamond.Open())
+        {
+            ctx.BeginFigure(new Point(bc.X, topY - h), true, true);
+            ctx.LineTo(new Point(bc.X + w, topY), false, false);
+            ctx.LineTo(new Point(bc.X, topY + h), false, false);
+            ctx.LineTo(new Point(bc.X - w, topY), false, false);
+        }
+
+        diamond.Freeze();
+        dc.DrawGeometry(LayerIconBrush, null, diamond);
+
+        // 下方两道折线，表示叠放的层
+        var chevronPen = new Pen(LayerIconBrush, Math.Max(0.8, s * 0.13))
+        {
+            StartLineCap = PenLineCap.Round,
+            EndLineCap = PenLineCap.Round,
+            LineJoin = PenLineJoin.Round
+        };
+        chevronPen.Freeze();
+
+        var chevrons = new StreamGeometry();
+        using (var ctx = chevrons.Open())
+        {
+            for (var i = 1; i <= 2; i++)
+            {
+                var y = topY + s * 0.28 * i;
+                ctx.BeginFigure(new Point(bc.X - w, y), false, false);
+                ctx.LineTo(new Point(bc.X, y + h), true, true);
+                ctx.LineTo(new Point(bc.X + w, y), true, true);
+            }
+        }
+
+        chevrons.Freeze();
+        dc.DrawGeometry(null, chevronPen, chevrons);
+    }
+
+    /// <summary>
+    /// 创建冻结的纯色画刷
+    /// </summary>
+    private static Brush CreateFrozenBrush(Color color)
+    {
+        var brush = new SolidColorBrush(color);
+        brush.Freeze();
+        return brush;
+    }
+
+    /// <summary>
+    /// 创建冻结的画笔
+    /// </summary>
+    private static Pen CreateFrozenPen(Color color, double thickness)
+    {
+        var pen = new Pen(CreateFrozenBrush(color), thickness);
+        pen.Freeze();
+        return pen;
     }
 
     /// <summary>
@@ -559,7 +674,7 @@ public class PointsCanvas : FrameworkElement
             var point = _allPoints[i];
 
             // 未绘制的点位不响应点击和悬停
-            if (!point.IsDrawn(HideMarkedPoints))
+            if (!point.IsDrawn(HideMarkedPoints, LayerFilter))
                 continue;
 
             if (_viewportRect.IsEmpty)

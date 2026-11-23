@@ -288,6 +288,8 @@ namespace BetterGenshinImpact.ViewModel
             }
             else
             {
+                // 点位面板与层级菜单都在圆形按钮上方，同时只展开一个
+                IsMapPointLayerMenuOpen = false;
                 // 打开时刷新“x 分钟前同步”的相对时间
                 OnPropertyChanged(nameof(HoYoLabSyncStatusText));
             }
